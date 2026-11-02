@@ -43,6 +43,28 @@ An ultra-lightweight, ad-free Android TV launcher with a fan-made Spider theme: 
 | *Fluid Dynamic Carousel (Directional Focus & Art)* | *Native App Switcher (Double-Press Home)* |
 ---
 
+## 📺 Running On A Real TV
+
+Recorded on my own TV: the home carousel, Recent Apps, Clear all and back to Home.
+
+<p align="center">
+  <img src="docs/SpiderOnMyTV.gif" alt="Spider TV running on a real Xiaomi Mi TV" width="640">
+</p>
+
+<p align="center"><a href="docs/SpiderOnMyTV.mp4">▶️ Watch the full clip (MP4)</a></p>
+
+**Tested on:**
+
+| | |
+|---|---|
+| TV | Xiaomi Mi TV (`MiTV-AXSO0`, codename `dangal`) |
+| Android | Android TV 9 (API 28) |
+| Chip | Amlogic quad-core (`txlx`) |
+| RAM | 1 GB |
+| Screen | 1280 × 720 (HD) |
+
+Home stays on Spider TV after setup. Tested it on another TV? Open an issue or PR and tell us the model so we can add it here.
+
 ## 🚀 1-Click Universal TV Setup
 
 Transform any Android TV or Google TV into an ultra-clean, ad-free experience with automated debloating, SmartTube installation, and the ~450 KB Spider TV Launcher.
