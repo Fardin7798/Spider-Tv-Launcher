@@ -87,6 +87,9 @@ Before running the setup, ensure:
    - Go back, open **Developer options**, and turn **USB debugging** ON (also turn **Network debugging** ON if present).
 4. 💻 **ADB Tool:** Standard Android Platform Tools (`sudo apt install adb` on Linux, `brew install android-platform-tools` on macOS, or pre-bundled in PowerShell for Windows).
 
+> [!TIP]
+> **TV Reboot Caveat (Google TV 14 / Android TV):** On clean restart/reboot, Android TV automatically turns Wireless Debugging OFF for security. If `adb connect` is refused after your TV reboots, simply turn **USB debugging / Wireless debugging** back ON under **Developer options**.
+
 ---
 
 ### 🤖 1-Click Setup with Any AI Agent (Recommended)

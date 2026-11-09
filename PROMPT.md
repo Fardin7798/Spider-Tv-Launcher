@@ -23,6 +23,7 @@ Please act as an autonomous Android TV deployment engineer and guide me through 
    - "Settings → Device Preferences → About → Press OK on 'Build' 7 times → Back → Developer options → Turn ON 'USB debugging' (and 'Network debugging' if visible)".
 3. Connect over Wi-Fi ADB (`adb connect <TV_IP>:5555`).
 4. Remind me to look at my TV screen to accept the "Allow USB debugging?" dialog and check "Always allow from this computer".
+5. **Reboot Note (Google TV 14 / Android TV):** If the TV is cleanly rebooted, wireless debugging resets to OFF by system design. Remind me to toggle it back ON in Developer Options if `adb connect` fails after a TV restart.
 
 ### Step 2: Automatic Baseline Safety Snapshot (Zero-Risk)
 Before touching anything or making any changes (especially before Debloat in Option 2 or 3), capture a full system state snapshot directly on my computer:
