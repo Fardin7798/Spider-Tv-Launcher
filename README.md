@@ -197,6 +197,16 @@ adb shell settings put global animator_duration_scale 1.0
 
 Contributions are welcome! Report a bug, suggest a new suit, add a debloat profile for your TV, or pick up a `good first issue`. Read the [Contributing guide](CONTRIBUTING.md) to get started, and please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## 📈 Star History
+
+<a href="https://star-history.com/#Fardin7798/Spider-Tv-Launcher&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Fardin7798/Spider-Tv-Launcher&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Fardin7798/Spider-Tv-Launcher&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Fardin7798/Spider-Tv-Launcher&type=Date" />
+ </picture>
+</a>
+
 ## ⚖️ Fan-Made Project & Legal Disclaimer
 
 Spider TV Launcher is an **unofficial, fan-made tribute**: an independent, non-commercial, open-source project for personal TV customization.
