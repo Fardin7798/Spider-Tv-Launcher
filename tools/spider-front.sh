@@ -9,27 +9,33 @@
 #   ./spider.sh status prints that evidence; ./spider.sh verify exits 1.
 #
 # WHAT IT DOES
-#   Every INTERVAL seconds it reads mCurrentFocus. If launcherx is on top it
-#   starts com.spidertv.launcher/.SpiderHomeActivity. That is a focus bounce,
-#   not ownership:
-#     - needs this computer awake, on the network, with adb authorised;
-#     - a TV reboot, Wi-Fi drop or PC sleep ends it immediately;
+#   It sends one small shell script to the TV and leaves it running there, over
+#   a single adb session. That script polls mCurrentFocus and starts
+#   com.spidertv.launcher/.SpiderHomeActivity whenever launcherx has focus, so
+#   polling costs no per-poll adb process or Wi-Fi round trip.
+#
+#   It is still a focus bounce, not ownership:
+#     - needs this computer awake and connected (a dead adb session is retried);
+#     - a TV reboot or Wi-Fi drop ends the session and it reconnects;
 #     - each HOME press shows launcherx briefly before Spider comes back;
 #     - anything you open on launcherx is taken away within INTERVAL seconds,
 #       so the stock home is unusable while this runs.
 #
+#   Stop with Ctrl-C: the adb session is killed and the remote loop is killed
+#   through /data/local/tmp/spider-front.pid, so no interceptor is left behind.
+#
 # USAGE
-#   ./spider-front.sh                 # 2 second poll
-#   INTERVAL=5 ./spider-front.sh      # slower, less adb traffic
+#   ./spider-front.sh                 # 2 second poll, on the TV
+#   INTERVAL=5 ./spider-front.sh      # slower
 #   SERIAL=<transport> ./spider-front.sh
 #   ADB=/path/to/adb ./spider-front.sh
-#   Ctrl-C stops it. Nothing on the TV is changed, installed or disabled.
 
 set -uo pipefail
 
 SPIDER=com.spidertv.launcher
 SPIDER_ACT="$SPIDER/.SpiderHomeActivity"
 LAUNCHER=com.google.android.apps.tv.launcherx
+PIDFILE=/data/local/tmp/spider-front.pid
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 INTERVAL="${INTERVAL:-2}"
@@ -65,6 +71,27 @@ pick_device() {
     "$ADB" devices 2>/dev/null | tr -d '\r' | awk 'NR>1 && $2=="device"{print $1; exit}'
 }
 
+# The script that actually runs on the TV. Local values are substituted here;
+# device-side expansions are escaped.
+build_device_script() {
+    cat <<EOF
+s=$PIDFILE
+if [ -f "\$s" ]; then kill "\$(cat "\$s")" 2>/dev/null; fi
+echo \$\$ > "\$s"
+while :; do
+    f=\$(dumpsys window 2>/dev/null | grep mCurrentFocus | head -1)
+    case "\$f" in
+        *$LAUNCHER*)
+            echo "\$(date +%H:%M:%S 2>/dev/null) launcherx focused -> Spider"
+            am start -n $SPIDER_ACT >/dev/null 2>&1 || echo "am start failed"
+            ;;
+    esac
+    sleep $INTERVAL
+done
+EOF
+}
+DEVICE_SCRIPT="$(build_device_script)"
+
 S="$(pick_device)"
 if [ -z "$S" ]; then
     echo "spider-front: no device answered. Wake the TV, check wireless debugging," >&2
@@ -76,18 +103,30 @@ if ! "$ADB" -s "$S" shell pm list packages 2>/dev/null | tr -d '\r' | grep -qx "
     exit 1
 fi
 
+stopped=0
+child=""
+dev_serial=""
+
 stop() {
-    printf '\nspider-front: stopped. Nothing was changed on the TV; HOME still resolves to %s.\n' "$LAUNCHER"
+    stopped=1
+    if [ -n "${child:-}" ]; then
+        kill "$child" 2>/dev/null || true
+    fi
+    if [ -n "${dev_serial:-}" ]; then
+        timeout 2 "$ADB" -s "$dev_serial" shell \
+            "kill \$(cat $PIDFILE) 2>/dev/null; rm -f $PIDFILE" >/dev/null 2>&1 || true
+    fi
+    printf '\nspider-front: stopped; remote loop killed. Nothing was changed on the TV; HOME still resolves to %s.\n' "$LAUNCHER"
     exit 0
 }
 trap stop INT TERM
 
 # Sleep in a child and wait on it: a signal interrupts wait cleanly instead of
-# making bash print "Terminated  sleep ..." to the terminal.
-pause() { sleep "$INTERVAL" & wait $!; }
+# making bash print "Terminated  sleep ...".
+pause() { sleep "$INTERVAL" & local p=$!; wait "$p"; }
 
 printf '==> spider-front on %s\n' "$S"
-printf '    %s -> %s every %ss (Ctrl-C to stop)\n' "$LAUNCHER" "$SPIDER" "$INTERVAL"
+printf '    %s -> %s every %ss, loop runs on the TV over one adb session\n' "$LAUNCHER" "$SPIDER" "$INTERVAL"
 printf '    Needs this computer awake and connected; HOME still resolves to %s.\n\n' "$LAUNCHER"
 
 misses=0
@@ -102,14 +141,13 @@ while :; do
         continue
     fi
     misses=0
+    dev_serial="$s"
 
-    focus="$("$ADB" -s "$s" shell dumpsys window 2>/dev/null | tr -d '\r' | grep -m1 mCurrentFocus)"
-    case "$focus" in
-        *"$LAUNCHER"*)
-            printf '%s launcherx focused -> Spider\n' "$(date +%H:%M:%S)"
-            "$ADB" -s "$s" shell am start -n "$SPIDER_ACT" >/dev/null 2>&1 ||
-                echo "  am start failed; is $SPIDER still installed?" >&2
-            ;;
-    esac
+    printf '%s\n' "$DEVICE_SCRIPT" | "$ADB" -s "$s" shell sh -s &
+    child=$!
+    wait "$child"; rc=$?
+    child=""
+    [ "$stopped" = 1 ] && break
+    printf 'session ended (rc=%s); reconnecting in %ss\n' "$rc" "$INTERVAL" >&2
     pause
 done
