@@ -13,3 +13,8 @@ com.google.android.tv.frameworkpackagestubs
 com.google.android.tungsten.setupwraith
 com.google.android.setupwizard
 com.spidertv.launcher
+
+# Stock launchers must never be disabled. With ROLE_HOME
+# unresolvable, HOME can fall through to a setup/recovery
+# activity and storm the input queue.
+com.google.android.apps.tv.launcherx

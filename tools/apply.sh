@@ -42,6 +42,17 @@ is_protected() {
 KNOWN_LAUNCHERS="com.google.android.apps.tv.launcherx com.google.android.tvlauncher com.google.android.leanbacklauncher com.mitv.tvhome"
 HDMI_INPUTS=$(adb -s "$TARGET_DEV" shell dumpsys tv_input 2>/dev/null | grep -oE 'com\.[a-zA-Z0-9._]+' | sort -u | tr '\n' ' ' || true)
 
+# Hard stop, independent of protected.txt: stock launchers are never disabled.
+# Losing ROLE_HOME is not a mistake you can undo with the remote.
+STOCK_LAUNCHERS="com.google.android.apps.tv.launcherx com.google.android.tvlauncher com.google.android.leanbacklauncher com.mitv.tvhome"
+is_stock_launcher() {
+    local p="$1"
+    for sl in $STOCK_LAUNCHERS; do
+        [ "$p" = "$sl" ] && return 0
+    done
+    return 1
+}
+
 # ── PHASE 0: Pre-flight Verification & APK Readiness ────────────
 echo "==> [Phase 0] Verifying prerequisites and APK files..."
 APK_PATH="$ROOT_DIR/app/build/outputs/apk/release/app-release.apk"
@@ -130,7 +141,7 @@ if [ "$WANTS_LAUNCHER" = true ]; then
     if [ "$HOME_NOW" = "com.spidertv.launcher" ]; then
         echo "    ✅ Home verified: com.spidertv.launcher"
         if [ -n "$ORIG_HOME" ] && [ "$ORIG_HOME" != "com.spidertv.launcher" ] && [ "$ORIG_HOME" != "none" ] && [ "$ORIG_HOME" != "android" ]; then
-            if is_protected "$ORIG_HOME"; then
+            if is_protected "$ORIG_HOME" || is_stock_launcher "$ORIG_HOME"; then
                 echo "    🛡️  Original Home ($ORIG_HOME) is in protected list — leaving enabled."
             else
                 echo "    Disabling previous stock launcher: $ORIG_HOME"
