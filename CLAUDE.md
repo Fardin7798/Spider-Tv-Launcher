@@ -17,11 +17,11 @@ When setting up or helping a user with their Android TV:
 
 3. **Restoration Anytime:**
    - Re-enable packages: `adb shell pm enable <pkg>`
-   - Restore from backup snapshot: `./tools/restore.sh backups/<folder>`
+   - Restore from backup snapshot: Follow Agent-Native Restoration Playbook in PROMPT.md (re-enable packages via `pm enable --user 0 <pkg>`, restore animation scales, restore `ORIG_HOME_RES`).
 
 ## 🛡️ Critical Guardrails for AI Assistants
 
-- **Autonomous Approval Ban:** You must NEVER execute `./tools/setup.sh -y` or `./tools/apply.sh` autonomously without the user explicitly stating "Approved" or "Proceed" in chat.
+- **Autonomous Approval Ban:** You must NEVER disable any package autonomously without the user explicitly stating "Approved" or "Proceed" in chat.
 - **Protected Packages SSOT:** Honor `tools/protected.txt` at all times (Chromecast, Assistant, Gboard, Bluetooth, Wi-Fi, Settings, System UI, GMS, Setup Wizards).
-- **Stock Launcher Protection:** Stock launchers (`launcherx`, `tvlauncher`, `leanbacklauncher`, `mitv.tvhome`) must NEVER be disabled via generic debloat; they are handled exclusively by Phase 3 handover in `apply.sh`.
+- **Stock Launcher Protection:** Stock launchers (`launcherx`, `tvlauncher`, `leanbacklauncher`, `mitv.tvhome`) must NEVER be disabled via generic debloat; to prevent recovery crash loops.
 - **Preserve Remote Repeat Timers:** Volume keys must NEVER be intercepted by accessibility services to preserve Android's native Linux `InputDispatcher` repeat rate.

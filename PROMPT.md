@@ -25,17 +25,35 @@ Please act as an autonomous Android TV deployment engineer and guide me through 
 4. Remind me to look at my TV screen to accept the "Allow USB debugging?" dialog and check "Always allow from this computer".
 
 ### Step 2: Automatic Baseline Safety Snapshot (Zero-Risk)
-Before touching anything or making any changes, always capture a full system state snapshot directly on my computer:
-1. Create a timestamped backup folder: `backups/<TV_IP>_<TIMESTAMP>/`
-2. Run these non-destructive read commands:
-   - `adb -s <TV> shell getprop ro.product.manufacturer > metadata.env` (append model, SDK, release, and current Home)
-   - `adb -s <TV> shell pm list packages -e | sed 's/package://' | sort > packages_enabled.txt`
-   - `adb -s <TV> shell pm list packages -d | sed 's/package://' | sort > packages_disabled.txt`
-   - `adb -s <TV> shell pm list packages -s | sed 's/package://' | sort > packages_system.txt`
-   - `adb -s <TV> shell pm list packages -3 | sed 's/package://' | sort > packages_user.txt`
-   - `adb -s <TV> shell settings list global | sort > settings_global.txt`
-   - `adb -s <TV> shell settings list secure | sort > settings_secure.txt`
-   - `adb -s <TV> shell settings list system | sort > settings_system.txt`
+Before touching anything or making any changes (especially before Debloat in Option 2 or 3), capture a full system state snapshot directly on my computer:
+1. Designated Location: `backups/<TV_IP>_<TIMESTAMP>/` (e.g., `backups/192.168.1.50_5555_20261109_185000/`)
+   - Also create `backups/<TV_IP>_original/` if this is the very first baseline run.
+2. Run these non-destructive read commands to save state into that directory:
+   - Create folder & capture hardware/OS metadata:
+     `mkdir -p "backups/<TV_IP>_<TIMESTAMP>"`
+     `echo "TARGET_DEV=<TV_IP>:5555" > "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "MFR=$(adb -s <TV> shell getprop ro.product.manufacturer | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "MODEL=$(adb -s <TV> shell getprop ro.product.model | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "SDK=$(adb -s <TV> shell getprop ro.build.version.sdk | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "RELEASE=$(adb -s <TV> shell getprop ro.build.version.release | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `HOME_ACT=$(adb -s <TV> shell cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME | tail -n 1 | tr -d '\r')`
+     `echo "ORIG_HOME_RES=$HOME_ACT" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "ORIG_HOME_PKG=$(echo "$HOME_ACT" | cut -d/ -f1)" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "WINDOW_ANIMATION_SCALE=$(adb -s <TV> shell settings get global window_animation_scale | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "TRANSITION_ANIMATION_SCALE=$(adb -s <TV> shell settings get global transition_animation_scale | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "ANIMATOR_DURATION_SCALE=$(adb -s <TV> shell settings get global animator_duration_scale | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "SNAPSHOT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+   - Package lists:
+     `adb -s <TV> shell pm list packages -e | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_enabled.txt"`
+     `adb -s <TV> shell pm list packages -d | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_disabled.txt"`
+     `adb -s <TV> shell pm list packages -s | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_system.txt"`
+     `adb -s <TV> shell pm list packages -3 | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_user.txt"`
+   - System settings dumps:
+     `adb -s <TV> shell settings list global | sort > "backups/<TV_IP>_<TIMESTAMP>/settings_global.txt"`
+     `adb -s <TV> shell settings list secure | sort > "backups/<TV_IP>_<TIMESTAMP>/settings_secure.txt"`
+     `adb -s <TV> shell settings list system | sort > "backups/<TV_IP>_<TIMESTAMP>/settings_system.txt"`
+   - Initialize changelog:
+     `touch "backups/<TV_IP>_<TIMESTAMP>/changelog.txt"`
 3. Tell me: *"✅ Safety snapshot captured in backups/<folder>/. All changes are 100% reversible anytime."*
 
 ### Step 3: Present 3 Clear Setup Options
@@ -75,8 +93,9 @@ Display a clean choice menu in our chat and wait for my selection:
    - **Unused Pre-installed OEM Apps:** e.g., OEM Gallery, unused stock players.
 4. Present the list clearly in our chat with checkboxes and wait for my explicit approval:
    *"Do you approve disabling these specific packages? Reply 'Approved' or tell me which ones to uncheck."*
-5. Once approved, disable only the approved packages:
+5. Once approved, disable only the approved packages and log them into `backups/<folder>/changelog.txt`:
    `adb -s <TV> shell pm disable-user --user 0 <pkg>`
+   `echo "<pkg>" >> "backups/<folder>/changelog.txt"`
 6. Once debloat is complete, ask me:
    *"TV has been cleaned and bloatware disabled! Would you also like to install the Spider TV Launcher now? (Yes / No)"*
    - If Yes: execute Option 1 installation steps.
@@ -97,5 +116,46 @@ Display a clean choice menu in our chat and wait for my selection:
 3. Explain the remote shortcuts to me:
    - **Double-Press Home Button:** Instantly opens the native Recent Apps Card Switcher from any app.
    - **Volume Key Hold:** 100% hardware-speed volume acceleration (zero accessibility lag).
-   - **How to Revert Anytime:** Remind me that any disabled app can be re-enabled instantly with `adb shell pm enable <pkg>`, or restored using `./tools/restore.sh backups/<folder>`.
+   - **How to Revert Anytime:** Remind me that I can ask you to "Restore my TV" anytime, and you will restore everything from the backup automatically.
+
+### Step 6: Restoration & Rollback Playbook (Agent-Native)
+Whenever I ask to **"Restore my TV"**, **"Revert changes"**, **"Undo debloat"**, or **"Go back to original state"**, execute this automated restoration without needing any shell scripts:
+
+1. **Locate Backup Snapshot:**
+   - Scan `backups/` directory: `ls -d backups/*`
+   - If multiple snapshots exist, ask me which one to restore (recommend the latest or `*_original`).
+   - Read `metadata.env` from that folder:
+     `cat "backups/<folder>/metadata.env"`
+
+2. **Re-Enable All Original Packages:**
+   - Read `packages_enabled.txt` from the selected backup folder and re-enable each package:
+     ```bash
+     while IFS= read -r pkg || [ -n "$pkg" ]; do
+       [ -n "$pkg" ] && adb -s <TV> shell pm enable --user 0 "$pkg" >/dev/null 2>&1
+     done < "backups/<folder>/packages_enabled.txt"
+     ```
+   - Confirm to me: *"Re-enabled all original system packages."*
+
+3. **Restore System Animation Scales:**
+   - Restore animation scale values recorded in `metadata.env`:
+     `adb -s <TV> shell settings put global window_animation_scale "${WINDOW_ANIMATION_SCALE:-1.0}"`
+     `adb -s <TV> shell settings put global transition_animation_scale "${TRANSITION_ANIMATION_SCALE:-1.0}"`
+     `adb -s <TV> shell settings put global animator_duration_scale "${ANIMATOR_DURATION_SCALE:-1.0}"`
+
+4. **Restore Original Default Home Launcher:**
+   - If `ORIG_HOME_RES` is in `metadata.env`:
+     `adb -s <TV> shell cmd package set-home-activity --user 0 "${ORIG_HOME_RES}"`
+
+5. **Optional App Cleanup (Ask Me):**
+   - Ask me: *"Would you also like to uninstall Spider TV Launcher or SmartTube from your TV? (Yes / No)"*
+   - If Yes:
+     `adb -s <TV> shell pm uninstall com.spidertv.launcher`
+     `adb -s <TV> shell pm uninstall com.teamsmart.videomanager.tv`
+     `adb -s <TV> shell pm uninstall com.liskovsoft.videomanager`
+     `adb -s <TV> shell pm uninstall org.smarttube.stable`
+
+6. **Verify Restored TV State:**
+   - Press Home (`adb -s <TV> shell input keyevent 3`).
+   - Confirm focused window is the original OEM launcher.
+   - Tell me: *"✅ Restoration complete! TV is 100% restored to its original factory state."*
 ```

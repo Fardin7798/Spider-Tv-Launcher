@@ -43,7 +43,7 @@ When setting up or helping a user with their Android TV:
 
 3. **Restoration Anytime:**
    - Re-enable packages: `adb shell pm enable <pkg>`
-   - Restore from backup snapshot: `./tools/restore.sh backups/<folder>`
+   - Restore from backup snapshot: Follow Agent-Native Restoration Playbook in PROMPT.md (re-enable packages via `pm enable --user 0 <pkg>`, restore animation scales, restore `ORIG_HOME_RES`).
 ## 🛡️ Critical Guardrails for Agents
 
 1. **NEVER Disable Protected System Services:**
@@ -54,6 +54,6 @@ When setting up or helping a user with their Android TV:
    - Volume and navigation keys must NEVER be intercepted or consumed in accessibility services to preserve Android's native repeat queue and hold acceleration.
 3. **Always Ensure Reversibility:**
    - Always verify that a snapshot exists before touching the TV.
-   - To restore: `./tools/restore.sh backups/<device_snapshot_directory> [TV_IP]`.
+   - To restore: Follow Agent-Native Restoration Playbook in PROMPT.md (read snapshot in `backups/<folder>`, re-enable `packages_enabled.txt`, reset scales, and set stock home).
 4. **AI Agent Autonomous Approval Ban:**
    - AI agents must NEVER disable any package autonomously without explicit user approval ("Approved" / "Proceed") in chat.

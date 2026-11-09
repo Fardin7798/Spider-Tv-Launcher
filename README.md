@@ -152,15 +152,26 @@ Every modification is 100% reversible. A complete snapshot of your TV's original
 > [!NOTE]
 > **What is restored:** System packages, stock home launcher, animation scales, and system display settings are fully restored. (Private app data directories and saved Wi-Fi credentials cannot be accessed or modified over standard ADB without root access).
 
-To restore your TV back to its exact untouched factory state:
+### 🔄 Reverting / Restoring to Factory State Anytime
+You can ask your AI assistant anytime:
+> *"Please restore my TV back to its original state using backups/<folder>."*
+
+Your AI assistant will automatically:
+- 🔄 Re-enable all original system packages via `pm enable --user 0 <pkg>`.
+- 📺 Restore your original stock launcher (`ORIG_HOME_RES` from `metadata.env`) as default Home.
+- ⚡ Revert window and transition animation scales back to original values.
+- 🕷️ Optionally cleanly uninstall Spider TV Launcher and SmartTube if requested.
+
+Or manually run via ADB:
 ```bash
-./tools/restore.sh backups/<device_snapshot_directory>
+# 1. Re-enable all original packages
+while IFS= read -r pkg; do [ -n "$pkg" ] && adb shell pm enable --user 0 "$pkg"; done < backups/<device_folder>/packages_enabled.txt
+
+# 2. Reset animation scales
+adb shell settings put global window_animation_scale 1.0
+adb shell settings put global transition_animation_scale 1.0
+adb shell settings put global animator_duration_scale 1.0
 ```
-*What the restore engine does:*
-- 🔄 Re-enables all original system packages.
-- 📺 Restores your original stock launcher as the default Home.
-- ⚡ Reverts animation scales back to original values.
-- 🕷️ Offers interactive clean uninstallation of Spider TV Launcher and SmartTube.
 ---
 
 ## 🕸️ What's Inside
@@ -170,7 +181,7 @@ To restore your TV back to its exact untouched factory state:
 - 🎮 TV Bluetooth remotes & accessories pairing from the top pill
 - ⚡ Zero-lag volume hold acceleration
 - 🎮 Remote double-press Home gesture
-- 🧹 Audit, debloat, backup and full restore scripts with per-brand profiles
+- 🧹 Automated Agent-Native debloat, safety backup snapshot and full restoration engine
 
 ## 🤝 Contributing
 
