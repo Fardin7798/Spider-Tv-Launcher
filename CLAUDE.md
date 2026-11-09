@@ -2,26 +2,22 @@
 
 This repository contains **Spider TV Launcher**, an ultra-lightweight (~450 KB), fan-made Spider-themed Android TV / Google TV launcher and safety debloat suite.
 
-## 🛠️ Unified Tool Suite (Always Use These, Never Invent Custom ADB Scripts)
+## 🛠️ Agent-Native Execution Protocol (Native ADB, No Fragile Bash Wrappers)
 
-1. **`./tools/audit.sh [TV_IP]`**:
-   - 100% Read-Only TV inspection (hardware, packages, Home owner, HDMI inputs).
-   - Captures Day-1 safety baseline in `backups/<device>_original/`.
-   - Generates `reports/report_<ts>.md` and editable `reports/plan_<ts>.txt`.
+When setting up or helping a user with their Android TV:
 
-2. **`./tools/apply.sh <plan_file> [TV_IP]`** (or `bash reports/apply_<ts>.sh`):
-   - Executes approved plan with atomic safety:
-     - Pre-flight APK checks
-     - Timestamped safety snapshot in `backups/<device>_<ts>/`
-     - Spider TV Launcher install & launch test (`am start -W`)
-     - Auto-grants `GET_USAGE_STATS` (Recent Apps) & enables `SpiderHomeKeyService`
-     - Verified Home handover to `com.spidertv.launcher` with auto-rollback
-     - Debloats approved packages (strictly skipping `tools/protected.txt` & HDMI inputs)
-     - SmartTube install & stock YouTube disable
+1. **Safety Baseline (Always First):**
+   - Connect via Wi-Fi ADB (`adb connect <TV_IP>:5555`).
+   - Capture a full-state safety snapshot directly in `backups/<device>_<timestamp>/` (`pm list packages -e/-d/-s/-3`, `settings list global/secure/system`, `getprop`).
 
-3. **`./tools/restore.sh <snapshot_dir> [TV_IP]`**:
-   - 100% rollback: re-enables all system packages, restores stock launcher, reverts animations.
-   - Cleans up SmartTube and Spider TV Launcher on request.
+2. **Present 3 Clear Options in Chat:**
+   - **[Option 1] Safe Launcher Setup Only:** Install Spider TV Launcher (`app-release.apk`), set default Home, leave all system packages untouched (100% risk-free).
+   - **[Option 2] Debloat Only:** Scan TV packages, check against `tools/protected.txt`, present categorized list (Analytics, Ads, Unused OEM apps) for user approval, and safely disable approved packages via `pm disable-user`. Ask if they want launcher installed after.
+   - **[Option 3] Full Transformation:** Interactive Debloat approval + Spider TV Launcher installation + 0.5x animation scales.
+
+3. **Restoration Anytime:**
+   - Re-enable packages: `adb shell pm enable <pkg>`
+   - Restore from backup snapshot: `./tools/restore.sh backups/<folder>`
 
 ## 🛡️ Critical Guardrails for AI Assistants
 

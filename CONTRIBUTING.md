@@ -17,7 +17,7 @@ Thanks for wanting to help! Bug reports, new debloat profiles, fixes and ideas a
 | `app/src/main/java/com/spidertv/launcher/` | The launcher (Java, no extra libraries) |
 | `app/src/main/res/` | Layouts, drawables, the hero art and fonts |
 | `profiles/` | Per-brand debloat lists |
-| `tools/` | `audit.sh`, `apply.sh`, `restore.sh` and the setup scripts |
+| `tools/` | `restore.sh`, `backup.sh`, and `protected.txt` whitelist |
 | `tools/protected.txt` | Packages that must never be disabled |
 
 ## Building

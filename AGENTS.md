@@ -28,39 +28,27 @@ When a user asks you to set up their TV at an IP address:
 bash reports/apply_<ts>.sh
 ```
 
-*(Optional 1-Click Interactive Mode: `./tools/setup.sh <TV_IP>`)*
-## 🛠️ Tool Suite Reference
+## 🛠️ Agent-Native Execution Protocol (Native ADB, No Fragile Bash Wrappers)
 
-The repository provides a single, unified tool suite. Always use these tools rather than manual raw ADB commands:
+When setting up or helping a user with their Android TV:
 
-1. **`./tools/audit.sh [TV_IP]`**:
-   - 100% Read-Only inspection of TV specs, running packages, Home owner, and HDMI inputs.
-   - Saves Day-1 baseline snapshot in `backups/<device>_original/`.
-   - Generates `reports/report_<ts>.md` and editable `reports/plan_<ts>.txt`.
+1. **Safety Baseline (Always First):**
+   - Connect via Wi-Fi ADB (`adb connect <TV_IP>:5555`).
+   - Capture a full-state safety snapshot directly in `backups/<device>_<timestamp>/` (`pm list packages -e/-d/-s/-3`, `settings list global/secure/system`, `getprop`).
 
-2. **`./tools/apply.sh <plan_file> [TV_IP]`** (or `bash reports/apply_<ts>.sh`):
-   - Executes approved plan with atomic safety:
-     - Pre-flight APK download & verification
-     - Safety state snapshot in `backups/<device>_<ts>/`
-     - Spider TV Launcher install & launch test (`am start -W`)
-     - Home handover to `com.spidertv.launcher` with auto-rollback
-     - Debloat approved packages (strictly skipping `tools/protected.txt`)
-     - SmartTube installation & stock YouTube disable
+2. **Present 3 Clear Options in Chat:**
+   - **[Option 1] Safe Launcher Setup Only:** Install Spider TV Launcher (`app-release.apk`), set default Home, leave all system packages untouched (100% risk-free).
+   - **[Option 2] Debloat Only:** Scan TV packages, check against `tools/protected.txt`, present categorized list (Analytics, Ads, Unused OEM apps) for user approval, and safely disable approved packages via `pm disable-user`. Ask if they want launcher installed after.
+   - **[Option 3] Full Transformation:** Interactive Debloat approval + Spider TV Launcher installation + 0.5x animation scales.
 
-3. **`./tools/restore.sh <snapshot_dir> [TV_IP]`**:
-   - Restores original stock launcher as default Home.
-   - Re-enables all original system packages.
-   - Resets animation scales back to original values.
-   - Re-enables stock YouTube.
-   - Offers clean uninstallation of Spider TV Launcher and SmartTube.
-
----
-
+3. **Restoration Anytime:**
+   - Re-enable packages: `adb shell pm enable <pkg>`
+   - Restore from backup snapshot: `./tools/restore.sh backups/<folder>`
 ## 🛡️ Critical Guardrails for Agents
 
 1. **NEVER Disable Protected System Services:**
    - Always honor `tools/protected.txt` (Chromecast, Assistant, Gboard, Wi-Fi, System UI, GMS, setup wizards).
-   - Never disable stock launchers via generic debloat; launcher handover is exclusively handled by `apply.sh`.
+   - Never disable stock launchers via generic debloat; to prevent recovery crash loops.
 2. **Preserve Linux `InputDispatcher` Repeat Rate (Volume Keys):**
    - Accessibility services (`SpiderHomeKeyService`, `SpiderInputKeyService`) exist exclusively for Home double-press and TV input switching.
    - Volume and navigation keys must NEVER be intercepted or consumed in accessibility services to preserve Android's native repeat queue and hold acceleration.
@@ -68,4 +56,4 @@ The repository provides a single, unified tool suite. Always use these tools rat
    - Always verify that a snapshot exists before touching the TV.
    - To restore: `./tools/restore.sh backups/<device_snapshot_directory> [TV_IP]`.
 4. **AI Agent Autonomous Approval Ban:**
-   - AI agents must NEVER execute `./tools/setup.sh -y` or `./tools/apply.sh` autonomously without explicit user approval ("Approved" / "Proceed") in chat.
+   - AI agents must NEVER disable any package autonomously without explicit user approval ("Approved" / "Proceed") in chat.

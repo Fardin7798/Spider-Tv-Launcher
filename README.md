@@ -82,56 +82,38 @@ Before running the setup, ensure:
 
 ---
 
-### 🤖 Option 1: Easiest Setup with Any AI Agent (Recommended for Beginners)
+### 🤖 1-Click Setup with Any AI Agent (Recommended)
 
-Don't want to deal with terminal commands? You can give this repository to any AI coding assistant (**Claude Code, Cursor, Devin, Antigravity, Roo Code, Windsurf, ChatGPT**):
+You can give this repository to any AI coding assistant (**Antigravity, Cursor, Claude Code, Devin, Roo Code, Windsurf, ChatGPT**). The assistant will autonomously connect to your TV, take a safety backup, and let you choose between 3 setup modes:
 
-| Step | Action |
-|---|---|
-| **1. On your TV** | Settings ➔ Device Preferences ➔ About ➔ Press OK on **Build** 7 times. Back ➔ Developer options ➔ Turn **USB Debugging** ON. |
-| **2. In your AI Agent** | Copy and paste [`PROMPT.md`](PROMPT.md) into your assistant chat. |
-| **3. Review & Approve** | Your assistant runs a read-only audit (`audit.sh`), shows you the hardware report & plan, and asks for your approval before touching anything! |
+| Mode | What It Does | Best For | Risk Level |
+|---|---|---|:---:|
+| **Option 1: Safe Launcher Setup** | Installs Spider TV Launcher & sets default Home. **Zero system apps touched.** | Users who want the aesthetic Spider-Man launcher safely without touching system firmware. | **Zero Risk (100% Safe)** |
+| **Option 2: Debloat Only** | Scans and lists OEM ads, telemetry, and sponsored rows for your approval before safely disabling them via `pm disable-user`. Existing launcher untouched. | Users who want to speed up their TV and remove OEM ads while keeping their current launcher. | **Safe (Reversible)** |
+| **Option 3: Full Transformation** | Complete makeover: performs interactive debloating first, then installs Spider TV Launcher, sets Home, and enables snappy 0.5x animation scales. | Complete clean-slate TV makeover. | **Safe (Snapshot Protected)** |
 
----
-
-### 💻 Option 2: Terminal Workflow (For Power Users)
-
-**1. Run Read-Only Audit (Zero changes made to TV):**
-```bash
-./tools/audit.sh <TV_IP>
-```
-*Outputs: `reports/report_<ts>.md` (Full audit) and `reports/plan_<ts>.txt` (Editable plan).*
-
-**2. Review & Apply Approved Plan:**
-```bash
-bash reports/apply_<ts>.sh
-```
-
-*(Alternatively, run the interactive 1-click suite directly: `./tools/setup.sh <TV_IP>`)*
-
-**What the automated setup does:**
-- 🔍 **Auto-detects TV hardware & manufacturer** (Sony, TCL, Xiaomi, OnePlus, Hisense, Shield, Chromecast).
-- 💾 **Creates an instant full-state safety snapshot** of all currently enabled packages, default Home launcher, animation scales, and system settings.
-- 🧹 **Safely disables manufacturer bloatware, sponsored recommendation rows, and telemetry** via `pm disable-user`.
-- 📺 **Replaces stock ad-heavy YouTube with official SmartTube** (Ad-free, SponsorBlock, TV-optimized).
-- 🕷️ **Installs and sets Spider TV Launcher** as the permanent default home activity.
+#### How to run with an AI Agent:
+1. **On your TV:** Enable USB Debugging (**Settings ➔ Device Preferences ➔ About ➔ Click 'Build' 7 times**, then open **Developer options ➔ USB Debugging ON**).
+2. **In your AI Agent:** Copy and paste [`PROMPT.md`](PROMPT.md) into the assistant chat.
+3. **Select Mode:** The agent will connect over Wi-Fi ADB, capture a snapshot in `backups/`, and ask whether you want Option 1, 2, or 3!
 
 ---
 
-### 🛠️ Option 3: Standalone Launcher Installation
+### 💻 Manual Terminal Setup (Standalone Launcher Installation)
 
-If you only want the ultra-lightweight launcher without debloating:
+If you prefer running terminal commands yourself without an AI assistant:
 ```bash
-# 1. Build release APK (or download the latest pre-built APK from GitHub Releases)
-./gradlew assembleRelease
-
-# 2. Connect to your TV over Wi-Fi
+# 1. Connect to your TV over Wi-Fi
 adb connect <TV_IP>:5555
 
-# 3. Install the launcher
+# 2. (Recommended) Capture an instant safety backup of current packages
+mkdir -p backups
+adb shell pm list packages -e | sed 's/package://' | sort > backups/packages_enabled.txt
+
+# 3. Install the pre-built release APK (or build with ./gradlew assembleRelease)
 adb install -r app/build/outputs/apk/release/app-release.apk
 
-# 4. Set as permanent default Home launcher
+# 4. Set as default Home launcher
 adb shell cmd package set-home-activity --user 0 com.spidertv.launcher/.SpiderHomeActivity
 
 # 5. Grant usage access for Recent Apps Switcher
