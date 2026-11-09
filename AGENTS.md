@@ -14,27 +14,13 @@ Transform any connected Android TV or Google TV (Sony, TCL, Xiaomi, OnePlus, His
 
 ---
 
-## ⚡ Standard Execution Workflow (Audit First)
-
-When a user asks you to set up their TV at an IP address:
-
-```bash
-# Step 1: Run read-only audit (ZERO changes to TV)
-./tools/audit.sh <TV_IP>
-
-# Step 2: Present summary from reports/report_<ts>.md to user and get approval.
-
-# Step 3: Run approved apply script
-bash reports/apply_<ts>.sh
-```
-
 ## 🛠️ Agent-Native Execution Protocol (Native ADB, No Fragile Bash Wrappers)
 
 When setting up or helping a user with their Android TV:
 
 1. **Safety Baseline (Always First):**
    - Connect via Wi-Fi ADB (`adb connect <TV_IP>:5555`).
-   - Capture a full-state safety snapshot directly in `backups/<device>_<timestamp>/` (`pm list packages -e/-d/-s/-3`, `settings list global/secure/system`, `getprop`).
+   - Capture a full-state safety snapshot directly in `~/Downloads/SpiderTv/Backup/<device>_<timestamp>/` (fallback: `backups/<device>_<timestamp>/`) (`pm list packages -e/-d/-s/-3`, `settings list global/secure/system`, `getprop`).
 
 2. **Present 3 Clear Options in Chat:**
    - **[Option 1] Safe Launcher Setup Only:** Install Spider TV Launcher (`app-release.apk`), set default Home, leave all system packages untouched (100% risk-free).

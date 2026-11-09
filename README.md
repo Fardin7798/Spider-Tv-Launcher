@@ -13,6 +13,13 @@ An ultra-lightweight, ad-free Android TV launcher with a fan-made Spider theme: 
 
 > 🕷️ **Fan-made, unofficial tribute.** All artwork, including the hero, is original and made for this project. Not affiliated with, endorsed or sponsored by Marvel or Sony.
 
+> [!IMPORTANT]
+> **🤖 For AI Coding Assistants (Antigravity, Cursor, Claude Code, Devin, Windsurf):**
+> When asked to set up, debloat, or restore a user's TV:
+> 1. Read [`AGENTS.md`](AGENTS.md) for safety guardrails (never disable protected system services, preserve volume repeat timers).
+> 2. Read [`PROMPT.md`](PROMPT.md) and execute the **3-Mode Setup & Restoration Playbook** (Option 1: Safe Launcher Only, Option 2: Debloat Only, Option 3: Full Transformation).
+> 3. Store all safety snapshots in `~/Downloads/SpiderTv/Backup/<TV_IP>_<TIMESTAMP>/`.
+
 ---
 
 <p align="center">
@@ -147,14 +154,14 @@ Pre-configured, verified debloat profiles are organized in [`profiles/`](profile
 
 ## ⏪ Instant Rollback & True Full-State Restore
 
-Every modification is 100% reversible. A complete snapshot of your TV's original state (enabled packages, original default Home launcher, animation scales, and system settings) is preserved in `backups/<device>_original/` (Day-1 baseline) and `backups/<device>_<timestamp>/` (per-run).
+Every modification is 100% reversible. A complete snapshot of your TV's original state (enabled packages, original default Home launcher, animation scales, and system settings) is preserved in `~/Downloads/SpiderTv/Backup/<device>_original/` (Day-1 baseline) and `~/Downloads/SpiderTv/Backup/<device>_<timestamp>/` (per-run).
 
 > [!NOTE]
 > **What is restored:** System packages, stock home launcher, animation scales, and system display settings are fully restored. (Private app data directories and saved Wi-Fi credentials cannot be accessed or modified over standard ADB without root access).
 
 ### 🔄 Reverting / Restoring to Factory State Anytime
 You can ask your AI assistant anytime:
-> *"Please restore my TV back to its original state using backups/<folder>."*
+> *"Please restore my TV back to its original state using ~/Downloads/SpiderTv/Backup/<folder>."*
 
 Your AI assistant will automatically:
 - 🔄 Re-enable all original system packages via `pm enable --user 0 <pkg>`.
@@ -165,7 +172,7 @@ Your AI assistant will automatically:
 Or manually run via ADB:
 ```bash
 # 1. Re-enable all original packages
-while IFS= read -r pkg; do [ -n "$pkg" ] && adb shell pm enable --user 0 "$pkg"; done < backups/<device_folder>/packages_enabled.txt
+while IFS= read -r pkg; do [ -n "$pkg" ] && adb shell pm enable --user 0 "$pkg"; done < ~/Downloads/SpiderTv/Backup/<device_folder>/packages_enabled.txt
 
 # 2. Reset animation scales
 adb shell settings put global window_animation_scale 1.0

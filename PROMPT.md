@@ -26,35 +26,36 @@ Please act as an autonomous Android TV deployment engineer and guide me through 
 
 ### Step 2: Automatic Baseline Safety Snapshot (Zero-Risk)
 Before touching anything or making any changes (especially before Debloat in Option 2 or 3), capture a full system state snapshot directly on my computer:
-1. Designated Location: `backups/<TV_IP>_<TIMESTAMP>/` (e.g., `backups/192.168.1.50_5555_20261109_185000/`)
-   - Also create `backups/<TV_IP>_original/` if this is the very first baseline run.
+1. Designated User Location: `~/Downloads/SpiderTv/Backup/<TV_IP>_<TIMESTAMP>/` (e.g., `~/Downloads/SpiderTv/Backup/192.168.1.50_5555_20261109_185000/`; fallback: `backups/<TV_IP>_<TIMESTAMP>/`)
+   - Also create `~/Downloads/SpiderTv/Backup/<TV_IP>_original/` if this is the very first baseline run.
 2. Run these non-destructive read commands to save state into that directory:
    - Create folder & capture hardware/OS metadata:
-     `mkdir -p "backups/<TV_IP>_<TIMESTAMP>"`
-     `echo "TARGET_DEV=<TV_IP>:5555" > "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "MFR=$(adb -s <TV> shell getprop ro.product.manufacturer | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "MODEL=$(adb -s <TV> shell getprop ro.product.model | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "SDK=$(adb -s <TV> shell getprop ro.build.version.sdk | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "RELEASE=$(adb -s <TV> shell getprop ro.build.version.release | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `BACKUP_DIR="${HOME}/Downloads/SpiderTv/Backup/<TV_IP>_<TIMESTAMP>"`
+     `mkdir -p "$BACKUP_DIR"`
+     `echo "TARGET_DEV=<TV_IP>:5555" > "$BACKUP_DIR/metadata.env"`
+     `echo "MFR=$(adb -s <TV> shell getprop ro.product.manufacturer | tr -d '\r')" >> "$BACKUP_DIR/metadata.env"`
+     `echo "MODEL=$(adb -s <TV> shell getprop ro.product.model | tr -d '\r')" >> "$BACKUP_DIR/metadata.env"`
+     `echo "SDK=$(adb -s <TV> shell getprop ro.build.version.sdk | tr -d '\r')" >> "$BACKUP_DIR/metadata.env"`
+     `echo "RELEASE=$(adb -s <TV> shell getprop ro.build.version.release | tr -d '\r')" >> "$BACKUP_DIR/metadata.env"`
      `HOME_ACT=$(adb -s <TV> shell cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME | tail -n 1 | tr -d '\r')`
-     `echo "ORIG_HOME_RES=$HOME_ACT" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "ORIG_HOME_PKG=$(echo "$HOME_ACT" | cut -d/ -f1)" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "WINDOW_ANIMATION_SCALE=$(adb -s <TV> shell settings get global window_animation_scale | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "TRANSITION_ANIMATION_SCALE=$(adb -s <TV> shell settings get global transition_animation_scale | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "ANIMATOR_DURATION_SCALE=$(adb -s <TV> shell settings get global animator_duration_scale | tr -d '\r')" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
-     `echo "SNAPSHOT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "backups/<TV_IP>_<TIMESTAMP>/metadata.env"`
+     `echo "ORIG_HOME_RES=$HOME_ACT" >> "$BACKUP_DIR/metadata.env"`
+     `echo "ORIG_HOME_PKG=$(echo "$HOME_ACT" | cut -d/ -f1)" >> "$BACKUP_DIR/metadata.env"`
+     `echo "WINDOW_ANIMATION_SCALE=$(adb -s <TV> shell settings get global window_animation_scale | tr -d '\r')" >> "$BACKUP_DIR/metadata.env"`
+     `echo "TRANSITION_ANIMATION_SCALE=$(adb -s <TV> shell settings get global transition_animation_scale | tr -d '\r')" >> "$BACKUP_DIR/metadata.env"`
+     `echo "ANIMATOR_DURATION_SCALE=$(adb -s <TV> shell settings get global animator_duration_scale | tr -d '\r')" >> "$BACKUP_DIR/metadata.env"`
+     `echo "SNAPSHOT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$BACKUP_DIR/metadata.env"`
    - Package lists:
-     `adb -s <TV> shell pm list packages -e | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_enabled.txt"`
-     `adb -s <TV> shell pm list packages -d | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_disabled.txt"`
-     `adb -s <TV> shell pm list packages -s | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_system.txt"`
-     `adb -s <TV> shell pm list packages -3 | sed 's/package://' | sort > "backups/<TV_IP>_<TIMESTAMP>/packages_user.txt"`
+     `adb -s <TV> shell pm list packages -e | sed 's/package://' | sort > "$BACKUP_DIR/packages_enabled.txt"`
+     `adb -s <TV> shell pm list packages -d | sed 's/package://' | sort > "$BACKUP_DIR/packages_disabled.txt"`
+     `adb -s <TV> shell pm list packages -s | sed 's/package://' | sort > "$BACKUP_DIR/packages_system.txt"`
+     `adb -s <TV> shell pm list packages -3 | sed 's/package://' | sort > "$BACKUP_DIR/packages_user.txt"`
    - System settings dumps:
-     `adb -s <TV> shell settings list global | sort > "backups/<TV_IP>_<TIMESTAMP>/settings_global.txt"`
-     `adb -s <TV> shell settings list secure | sort > "backups/<TV_IP>_<TIMESTAMP>/settings_secure.txt"`
-     `adb -s <TV> shell settings list system | sort > "backups/<TV_IP>_<TIMESTAMP>/settings_system.txt"`
+     `adb -s <TV> shell settings list global | sort > "$BACKUP_DIR/settings_global.txt"`
+     `adb -s <TV> shell settings list secure | sort > "$BACKUP_DIR/settings_secure.txt"`
+     `adb -s <TV> shell settings list system | sort > "$BACKUP_DIR/settings_system.txt"`
    - Initialize changelog:
-     `touch "backups/<TV_IP>_<TIMESTAMP>/changelog.txt"`
-3. Tell me: *"✅ Safety snapshot captured in backups/<folder>/. All changes are 100% reversible anytime."*
+     `touch "$BACKUP_DIR/changelog.txt"`
+3. Tell me: *"✅ Safety snapshot captured in ~/Downloads/SpiderTv/Backup/<folder>/. All changes are 100% reversible anytime."*
 
 ### Step 3: Present 3 Clear Setup Options
 Display a clean choice menu in our chat and wait for my selection:
@@ -122,17 +123,17 @@ Display a clean choice menu in our chat and wait for my selection:
 Whenever I ask to **"Restore my TV"**, **"Revert changes"**, **"Undo debloat"**, or **"Go back to original state"**, execute this automated restoration without needing any shell scripts:
 
 1. **Locate Backup Snapshot:**
-   - Scan `backups/` directory: `ls -d backups/*`
+   - Scan backup directories: `ls -d ~/Downloads/SpiderTv/Backup/* backups/* 2>/dev/null`
    - If multiple snapshots exist, ask me which one to restore (recommend the latest or `*_original`).
    - Read `metadata.env` from that folder:
-     `cat "backups/<folder>/metadata.env"`
+     `cat "<selected_backup_folder>/metadata.env"`
 
 2. **Re-Enable All Original Packages:**
    - Read `packages_enabled.txt` from the selected backup folder and re-enable each package:
      ```bash
      while IFS= read -r pkg || [ -n "$pkg" ]; do
        [ -n "$pkg" ] && adb -s <TV> shell pm enable --user 0 "$pkg" >/dev/null 2>&1
-     done < "backups/<folder>/packages_enabled.txt"
+     done < "<selected_backup_folder>/packages_enabled.txt"
      ```
    - Confirm to me: *"Re-enabled all original system packages."*
 
