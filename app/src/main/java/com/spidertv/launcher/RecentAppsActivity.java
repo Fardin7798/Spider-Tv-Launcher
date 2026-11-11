@@ -685,7 +685,7 @@ public class RecentAppsActivity extends Activity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_BUTTON_2 || keyCode == KeyEvent.KEYCODE_APP_SWITCH || event.getScanCode() == 150 || event.getScanCode() == 580) { finish(); return true; }
+        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_BUTTON_2 || keyCode == KeyEvent.KEYCODE_APP_SWITCH || SpiderHomeKeyService.isMiScan(event.getScanCode())) { finish(); return true; }
         return super.onKeyDown(keyCode, event);
     }
 

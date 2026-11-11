@@ -290,8 +290,7 @@ public class SpiderHomeActivity extends android.app.Activity {
         return code == KeyEvent.KEYCODE_BUTTON_2
                 || code == KeyEvent.KEYCODE_APP_SWITCH
                 || code == KeyEvent.KEYCODE_MENU
-                || scan == 150
-                || scan == 580;
+                || SpiderHomeKeyService.isMiScan(scan);
     }
 
     @Override

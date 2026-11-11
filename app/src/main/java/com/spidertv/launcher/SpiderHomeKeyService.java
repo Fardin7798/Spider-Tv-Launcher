@@ -11,7 +11,7 @@ import android.view.KeyEvent;
  * redirects only these:
  * <ul>
  *   <li>Settings (KEYCODE_SETTINGS, or any code listed in spider_config.xml / config.json) to system Settings,</li>
- *   <li>the Mi button (KEYCODE_BUTTON_2, scancode 150) to the recent-apps screen,</li>
+ *   <li>the Mi button (KEYCODE_BUTTON_2, scancode 150 or 580) to the recent-apps screen,</li>
  *   <li>KEYCODE_ALL_APPS to this launcher.</li>
  * </ul>
  * Everything else passes through. Enable it over adb with
@@ -27,8 +27,13 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
     static final int GO_RECENTS = 3;
     static final int GO_HOME = 4;
 
-    /** Scancode sent by the Xiaomi Mi button. */
-    private static final int XIAOMI_MI_SCAN = 150;
+    /** Scancodes sent by the Xiaomi Mi button, depending on the remote; shared with Home and Recents. */
+    static final int XIAOMI_MI_SCAN = 150;
+    static final int XIAOMI_MI_SCAN_ALT = 580;
+
+    static boolean isMiScan(int scan) {
+        return scan == XIAOMI_MI_SCAN || scan == XIAOMI_MI_SCAN_ALT;
+    }
 
     private int[] settingsScans = new int[0];
     private int[] settingsCodes = new int[0];
@@ -56,7 +61,7 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
         final int action;
         if (code == KeyEvent.KEYCODE_SETTINGS || contains(scans, scan) || contains(codes, code)) {
             action = GO_SETTINGS;
-        } else if (code == KeyEvent.KEYCODE_BUTTON_2 || scan == XIAOMI_MI_SCAN) {
+        } else if (code == KeyEvent.KEYCODE_BUTTON_2 || isMiScan(scan)) {
             action = GO_RECENTS;
         } else if (code == KeyEvent.KEYCODE_ALL_APPS) {
             action = GO_HOME;
