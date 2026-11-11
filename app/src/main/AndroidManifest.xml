@@ -81,6 +81,27 @@
             android:screenOrientation="landscape" android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
 
+        <!-- "Set Spider wallpaper": share or "Use as" a photo or video to make it the Home wallpaper.
+             Reads only the sender's content URI, so no storage permission is needed. -->
+        <activity android:name=".SpiderWallpaperActivity" android:exported="true"
+            android:label="@string/spider_wallpaper_share_label"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+            android:taskAffinity="" android:excludeFromRecents="true" android:noHistory="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboard|keyboardHidden|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="video/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="video/*"/>
+            </intent-filter>
+        </activity>
+
         <!-- Recent-apps overlay; also answers Xiaomi's hot-key intent. -->
         <activity android:name=".RecentAppsActivity" android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"

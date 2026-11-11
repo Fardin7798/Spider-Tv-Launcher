@@ -77,6 +77,16 @@
     <string name="spider_apps_info">App info</string>
     <string name="spider_apps_uninstall">Uninstall</string>
 
+    <!-- ===== Custom Home wallpaper ===== -->
+    <string name="spider_wallpaper_share_label">Set Spider wallpaper</string>
+    <string name="spider_wallpaper_set_title">Set as Home wallpaper</string>
+    <string name="spider_wallpaper_copying">Copying to Spider TV Launcher…</string>
+    <string name="spider_wallpaper_done">Home wallpaper set</string>
+    <string name="spider_wallpaper_failed">Couldn\'t set the wallpaper</string>
+    <string name="spider_wallpaper_unsupported">Pick a photo or a video</string>
+    <string name="spider_wallpaper_too_big">Too large: photos up to 64 MB, videos up to 200 MB</string>
+    <string name="spider_wallpaper_nothing">Nothing to set as wallpaper</string>
+
     <!-- ===== Errors and hints ===== -->
     <string name="spider_cant_open">Can\'t open %1$s</string>
     <string name="spider_unavailable">Not available on this TV</string>
