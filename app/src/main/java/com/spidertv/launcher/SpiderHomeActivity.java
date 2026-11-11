@@ -55,7 +55,7 @@ public class SpiderHomeActivity extends android.app.Activity {
     /** Source-row state meaning "show no status". */
     private static final int NO_STATE = -1;
 
-    /** Uptime of the previous Home press (or resume); static so every instance sees it. */
+    /** Uptime of the previous Home press made while Home was in front; static so every instance sees it. */
     private static long previousHomeAt = 0;
 
     private float dp;
@@ -208,11 +208,14 @@ public class SpiderHomeActivity extends android.app.Activity {
         final long at = android.os.SystemClock.uptimeMillis();
         final long gap = at - previousHomeAt;
         Log.d(TAG, "onNewIntent: delta=" + gap);
-        if (gap < HOME_TWICE_MS) {
+        // Still stopped (onNewIntent runs before onResume): this press brought Home back from another
+        // app, so it is not the first of a double press. Only two presses while on Home open recents.
+        final boolean fromElsewhere = freshOnResume;
+        if (!fromElsewhere && gap < HOME_TWICE_MS) {
             previousHomeAt = 0;
             if (launchRecents()) return;
         }
-        previousHomeAt = at;
+        previousHomeAt = fromElsewhere ? 0 : at;
         if (home != null) home.home();
     }
 
@@ -239,8 +242,6 @@ public class SpiderHomeActivity extends android.app.Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Returning to Home counts as a first press: one more inside the window opens recents.
-        previousHomeAt = android.os.SystemClock.uptimeMillis();
         if (home != null) {
             home.onResume(freshOnResume);
             freshOnResume = false;
