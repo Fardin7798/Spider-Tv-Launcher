@@ -102,6 +102,30 @@
             </intent-filter>
         </activity>
 
+        <!-- "Restore Spider layout": reads a layout backup (shared as a file or text, or picked under
+             Settings), checks it and asks before overwriting. No storage permission: content URIs only. -->
+        <activity android:name=".SpiderRestoreActivity" android:exported="true"
+            android:label="@string/spider_restore_label"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+            android:taskAffinity="" android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboard|keyboardHidden|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/json"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="*/*"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Shares the layout backup copy when the TV has no file picker to save it with. -->
+        <provider android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/spider_backup_paths"/>
+        </provider>
+
         <!-- Recent-apps overlay; also answers Xiaomi's hot-key intent. -->
         <activity android:name=".RecentAppsActivity" android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"

@@ -95,6 +95,38 @@
     <string name="spider_wallpaper_too_big">Too large: photos up to 64 MB, videos up to 200 MB</string>
     <string name="spider_wallpaper_nothing">Nothing to set as wallpaper</string>
 
+    <!-- ===== Layout backup and restore (the wallpaper file itself is never in a backup) ===== -->
+    <string name="spider_prefs_section_backup">Backup</string>
+    <string name="spider_prefs_backup">Back up layout</string>
+    <string name="spider_prefs_backup_note">Wallpaper file not included</string>
+    <string name="spider_prefs_restore">Restore layout</string>
+    <string name="spider_backup_saving">Saving…</string>
+    <string name="spider_backup_done">Layout backed up. Settings and apps are saved; the wallpaper file is not.</string>
+    <string name="spider_backup_failed">Couldn\'t save the backup</string>
+    <string name="spider_backup_sharing">No file picker on this TV. Sharing the backup instead.</string>
+    <string name="spider_backup_share_title">Share Spider layout backup</string>
+    <string name="spider_restore_label">Restore Spider layout</string>
+    <string name="spider_restore_reading">Reading backup…</string>
+    <string name="spider_restore_from">From Spider TV Launcher %1$s</string>
+    <string name="spider_restore_from_on">From Spider TV Launcher %1$s, %2$s</string>
+    <string name="spider_restore_counts">Settings: %1$d  ·  Hidden apps: %2$s  ·  App order: %3$s</string>
+    <string name="spider_restore_kept">kept</string>
+    <string name="spider_restore_warning">Restoring replaces your current Home layout. The wallpaper isn\'t in the backup, so yours stays as it is.</string>
+    <string name="spider_restore_wallpaper_photo">The backed-up Home had a photo wallpaper; choose it again under Wallpaper.</string>
+    <string name="spider_restore_wallpaper_video">The backed-up Home had a video wallpaper; choose it again under Wallpaper.</string>
+    <string name="spider_restore_confirm">Restore</string>
+    <string name="spider_restore_cancel">Cancel</string>
+    <string name="spider_restore_close">Close</string>
+    <string name="spider_restore_done">Home layout restored</string>
+    <string name="spider_restore_failed">Couldn\'t restore the layout</string>
+    <string name="spider_restore_err_empty">This file is empty. Nothing was changed.</string>
+    <string name="spider_restore_err_too_big">This file is too large for a layout backup (over 1 MB). Nothing was changed.</string>
+    <string name="spider_restore_err_not_backup">This isn\'t a Spider layout backup. Nothing was changed.</string>
+    <string name="spider_restore_err_newer">This backup was made by a newer Spider TV Launcher. Update the launcher, then try again.</string>
+    <string name="spider_restore_err_version">This backup is damaged or has an unknown version. Nothing was changed.</string>
+    <string name="spider_restore_err_unreadable">Couldn\'t read the file. Nothing was changed.</string>
+    <string name="spider_restore_err_nothing">Nothing to restore</string>
+
     <!-- ===== Errors and hints ===== -->
     <string name="spider_cant_open">Can\'t open %1$s</string>
     <string name="spider_unavailable">Not available on this TV</string>
