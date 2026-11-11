@@ -1,0 +1,30 @@
+<!--
+  "Set Spider wallpaper" share target: a small glass sheet over the dimmed sender while the photo or video
+  is copied into the launcher. Nothing to focus; Back cancels.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent" android:layout_width="match_parent"
+    android:background="#B3000000">
+
+    <LinearLayout android:orientation="vertical" android:gravity="center_horizontal"
+        android:layout_height="wrap_content" android:layout_width="420dp"
+        android:layout_gravity="center"
+        android:background="@drawable/spider_glass_panel" android:padding="24dp">
+
+        <TextView android:id="@+id/spiderWallpaperTitle" style="@style/SpiderText.Pill"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:fontFamily="@font/spider_inter_bold" android:textSize="@dimen/spider_os_text_headline"
+            android:textColor="@color/spider_text_title" android:text="@string/spider_wallpaper_set_title"/>
+
+        <ProgressBar android:id="@+id/spiderWallpaperProgress"
+            style="@android:style/Widget.Material.ProgressBar.Horizontal"
+            android:layout_height="wrap_content" android:layout_width="match_parent"
+            android:layout_marginTop="18dp" android:indeterminate="true"
+            android:indeterminateTint="@color/spider_os_label_primary"/>
+
+        <TextView android:id="@+id/spiderWallpaperStatus" style="@style/SpiderText.Pill"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:layout_marginTop="12dp" android:textSize="@dimen/spider_os_text_caption1"
+            android:textColor="#B3FFFFFF" android:text="@string/spider_wallpaper_copying"/>
+    </LinearLayout>
+</FrameLayout>

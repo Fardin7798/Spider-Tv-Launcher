@@ -15,6 +15,8 @@
     <uses-permission tools:ignore="CoarseFineLocation" android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- recents screen: usage stats (adb-granted) -->
     <uses-permission tools:ignore="ProtectedPermissions" android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <!-- Manage apps: open the system uninstall prompt (needed for ACTION_DELETE on API 28+) -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
 
     <!-- ===== Package visibility (API 30+) ===== -->
     <queries>
@@ -64,10 +66,41 @@
         </activity>
 
         <!-- Invisible trampoline that opens the system "default home" chooser; started by a long press
-             on the Settings pill or tile. -->
+             on the Settings pill or tile, or from the launcher's Settings screen. -->
         <activity android:name=".SpiderSettingsActivity" android:exported="false"
             android:theme="@android:style/Theme.NoDisplay"
             android:taskAffinity="" android:excludeFromRecents="true"/>
+
+        <!-- Launcher Settings screen, opened from the Settings tile at the end of the Home row. -->
+        <activity android:name=".SpiderLauncherSettingsActivity" android:exported="false"
+            android:screenOrientation="landscape" android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
+
+        <!-- Manage apps: hide, show, reorder, App info and uninstall; opened from the Settings screen. -->
+        <activity android:name=".SpiderAppsActivity" android:exported="false"
+            android:screenOrientation="landscape" android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
+
+        <!-- "Set Spider wallpaper": share or "Use as" a photo or video to make it the Home wallpaper.
+             Reads only the sender's content URI, so no storage permission is needed. -->
+        <activity android:name=".SpiderWallpaperActivity" android:exported="true"
+            android:label="@string/spider_wallpaper_share_label"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+            android:taskAffinity="" android:excludeFromRecents="true" android:noHistory="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboard|keyboardHidden|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="video/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+                <data android:mimeType="video/*"/>
+            </intent-filter>
+        </activity>
 
         <!-- Recent-apps overlay; also answers Xiaomi's hot-key intent. -->
         <activity android:name=".RecentAppsActivity" android:exported="true"

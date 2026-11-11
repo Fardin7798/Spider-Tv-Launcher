@@ -41,6 +41,7 @@ public class FlipClockView extends View {
     private float flipH = 1f, flipM = 1f;
     private ValueAnimator anim;
     private boolean animations = true;
+    private int clockFormat = SpiderUserSettings.CLOCK_SYSTEM;
 
     private final BroadcastReceiver tick = new BroadcastReceiver() {
         @Override
@@ -82,6 +83,14 @@ public class FlipClockView extends View {
         animations = on;
     }
 
+    /** SpiderUserSettings.CLOCK_*: follow the TV, or force 12-hour / 24-hour digits. */
+    void setClockFormat(int format) {
+        if (format == clockFormat) return;
+        clockFormat = format;
+        hour = "";
+        update(false);
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -106,7 +115,8 @@ public class FlipClockView extends View {
 
     void update(boolean animate) {
         Calendar c = Calendar.getInstance();
-        boolean h24 = DateFormat.is24HourFormat(getContext());
+        boolean h24 = clockFormat == SpiderUserSettings.CLOCK_SYSTEM
+                ? DateFormat.is24HourFormat(getContext()) : clockFormat == SpiderUserSettings.CLOCK_24H;
         int h = c.get(h24 ? Calendar.HOUR_OF_DAY : Calendar.HOUR);
         if (!h24 && h == 0) h = 12;
         String nh = h24 ? String.format(Locale.US, "%02d", h) : String.valueOf(h);

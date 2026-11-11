@@ -44,6 +44,57 @@
     <!-- java.text date pattern shared by home and screensaver -->
     <string name="spider_date_pattern">EEEE  d MMMM</string>
 
+    <!-- ===== Launcher Settings screen ===== -->
+    <string name="spider_prefs_title">Launcher settings</string>
+    <string name="spider_prefs_section_home">Home screen</string>
+    <string name="spider_prefs_section_motion">Motion</string>
+    <string name="spider_prefs_section_more">More</string>
+    <string name="spider_prefs_show_clock">Show clock</string>
+    <string name="spider_prefs_clock_format">Clock format</string>
+    <string name="spider_prefs_clock_system">Follow TV</string>
+    <string name="spider_prefs_clock_12h">12-hour</string>
+    <string name="spider_prefs_clock_24h">24-hour</string>
+    <string name="spider_prefs_show_date">Show date</string>
+    <string name="spider_prefs_show_greeting">Show greeting</string>
+    <string name="spider_prefs_phone_apps">Show phone apps</string>
+    <string name="spider_prefs_animations">Animations</string>
+    <string name="spider_prefs_reduced_motion">Reduced motion</string>
+    <string name="spider_prefs_default_home">Default home app</string>
+    <string name="spider_prefs_system">TV settings</string>
+    <string name="spider_prefs_section_apps">Apps</string>
+    <string name="spider_prefs_manage_apps">Manage apps</string>
+    <string name="spider_prefs_section_wallpaper">Wallpaper</string>
+    <string name="spider_prefs_wallpaper_choose">Choose wallpaper</string>
+    <string name="spider_prefs_wallpaper_reset">Reset to default</string>
+    <string name="spider_prefs_wallpaper_reset_done">Default wallpaper restored</string>
+    <string name="spider_prefs_wallpaper_default">Default</string>
+    <string name="spider_prefs_wallpaper_photo">Photo</string>
+    <string name="spider_prefs_wallpaper_video">Video</string>
+    <string name="spider_prefs_wallpaper_copying">Copying…</string>
+    <string name="spider_prefs_on">On</string>
+    <string name="spider_prefs_off">Off</string>
+
+    <!-- ===== Manage apps screen ===== -->
+    <string name="spider_apps_title">Manage apps</string>
+    <string name="spider_apps_shown">On Home</string>
+    <string name="spider_apps_hidden">Hidden</string>
+    <string name="spider_apps_moving">Moving: Up / Down, OK to drop</string>
+    <string name="spider_apps_hide">Hide from Home</string>
+    <string name="spider_apps_show">Show on Home</string>
+    <string name="spider_apps_move">Move</string>
+    <string name="spider_apps_info">App info</string>
+    <string name="spider_apps_uninstall">Uninstall</string>
+
+    <!-- ===== Custom Home wallpaper ===== -->
+    <string name="spider_wallpaper_share_label">Set Spider wallpaper</string>
+    <string name="spider_wallpaper_set_title">Set as Home wallpaper</string>
+    <string name="spider_wallpaper_copying">Copying to Spider TV Launcher…</string>
+    <string name="spider_wallpaper_done">Home wallpaper set</string>
+    <string name="spider_wallpaper_failed">Couldn\'t set the wallpaper</string>
+    <string name="spider_wallpaper_unsupported">Pick a photo or a video</string>
+    <string name="spider_wallpaper_too_big">Too large: photos up to 64 MB, videos up to 200 MB</string>
+    <string name="spider_wallpaper_nothing">Nothing to set as wallpaper</string>
+
     <!-- ===== Errors and hints ===== -->
     <string name="spider_cant_open">Can\'t open %1$s</string>
     <string name="spider_unavailable">Not available on this TV</string>

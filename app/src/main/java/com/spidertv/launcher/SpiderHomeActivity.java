@@ -71,12 +71,17 @@ public class SpiderHomeActivity extends android.app.Activity {
     private View sourcesPill;
     private TextView networkPill;
     private SpiderHomeController home;
+    /** Custom wallpaper behind everything; hidden when the default backdrop is in use. */
+    private SpiderWallpaperView wallpaper;
     private PopupWindow shownSheet;
     private boolean freshOnResume = true;
     /** The app row needs rebuilding on the next onResume: first start, or packages changed while stopped. */
     private boolean appsDirty = true;
     /** PackageManager change cursor (getChangedPackages); catches installs and removals made while stopped. */
     private int packageSeq;
+    /** SpiderUserSettings revision Home last drew; a newer one means the Settings screen changed something. */
+    private int settingsSeen;
+    private SpiderPrefs prefs;
 
     private final android.os.Handler ui = new android.os.Handler(android.os.Looper.getMainLooper());
 
@@ -139,7 +144,8 @@ public class SpiderHomeActivity extends android.app.Activity {
         setContentView(R.layout.activity_main_spider);
         dp = getResources().getDisplayMetrics().density;
 
-        final SpiderPrefs prefs = SpiderPrefs.read(this);
+        prefs = SpiderPrefs.read(this);
+        settingsSeen = new SpiderUserSettings(this).revision();
         tunerPackage = prefs.tunerPackage;
         tunerAction = prefs.tunerAction;
         sourceIntentAction = prefs.sourceIntentAction;
@@ -151,6 +157,10 @@ public class SpiderHomeActivity extends android.app.Activity {
         sourcesPill = findViewById(R.id.spiderSourcesPill);
         networkPill = findViewById(R.id.spiderNetworkPill);
         home = new SpiderHomeController(this, prefs, new PillHandlers());
+        wallpaper = new SpiderWallpaperView(this);
+        screen.addView(wallpaper, 0, new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        applyWallpaper();
 
         for (String a : new String[]{Intent.ACTION_PACKAGE_ADDED, Intent.ACTION_PACKAGE_REMOVED,
                 Intent.ACTION_PACKAGE_CHANGED}) {
@@ -204,7 +214,7 @@ public class SpiderHomeActivity extends android.app.Activity {
 
         @Override
         public void launcherSettings() {
-            launchSettings();
+            startActivity(new Intent(SpiderHomeActivity.this, SpiderLauncherSettingsActivity.class));
         }
     }
 
@@ -234,6 +244,33 @@ public class SpiderHomeActivity extends android.app.Activity {
         return true;
     }
 
+    /**
+     * Picks up Settings screen changes. A motion change rebuilds the activity (the carousel and clock take
+     * motion once); anything else is redrawn in place. True when the activity is being recreated.
+     */
+    private boolean settingsChanged() {
+        final int now = new SpiderUserSettings(this).revision();
+        if (now == settingsSeen) return false;
+        settingsSeen = now;
+        final SpiderPrefs fresh = SpiderPrefs.read(this);
+        if (fresh.motionOn != prefs.motionOn || fresh.motionGentle != prefs.motionGentle) {
+            recreate();
+            return true;
+        }
+        prefs = fresh;
+        if (home != null) home.update(fresh);
+        applyWallpaper();
+        appsDirty = false;
+        return false;
+    }
+
+    /** A video wallpaper plays only with motion on and not reduced; otherwise its first frame shows. */
+    private void applyWallpaper() {
+        if (wallpaper != null) {
+            wallpaper.apply(SpiderWallpaperStore.current(this), prefs.motionOn && !prefs.motionGentle);
+        }
+    }
+
     /** Opens the recents screen; false if starting it threw. */
     private boolean launchRecents() {
         try {
@@ -258,11 +295,13 @@ public class SpiderHomeActivity extends android.app.Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (settingsChanged()) return;
         if (home != null) {
             home.onResume(appsDirty);
             appsDirty = false;
             freshOnResume = false;
         }
+        if (wallpaper != null) wallpaper.resume();
         paintNetworkPill();
         refreshSourcesPill();
         ui.postDelayed(everyMinute, TICK_MS);
@@ -273,18 +312,21 @@ public class SpiderHomeActivity extends android.app.Activity {
         super.onPause();
         ui.removeCallbacks(everyMinute);
         if (shownSheet != null) shownSheet.dismiss();
+        if (wallpaper != null) wallpaper.pause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unregisterReceiver(appWatcher);
+        if (wallpaper != null) wallpaper.stop();
         freshOnResume = true;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (wallpaper != null) wallpaper.release();
         final ConnectivityManager net = getSystemService(ConnectivityManager.class);
         final TvInputManager sources = tvInputs();
         if (sources != null) sources.unregisterCallback(sourceWatcher);
@@ -417,7 +459,12 @@ public class SpiderHomeActivity extends android.app.Activity {
      * TV) if installed; else the plain action again so the caller shows "not available".
      */
     private Intent settingsIntent(String action) {
-        final PackageManager pm = getPackageManager();
+        return settingsIntent(this, action);
+    }
+
+    /** See {@link #settingsIntent(String)}; shared with the launcher's own Settings screen. */
+    static Intent settingsIntent(android.content.Context context, String action) {
+        final PackageManager pm = context.getPackageManager();
         final Intent plain = new Intent(action);
         if (plain.resolveActivity(pm) != null) return plain;
         final Intent mi = new Intent().setComponent(MI_SETTINGS);
