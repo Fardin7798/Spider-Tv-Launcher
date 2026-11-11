@@ -29,6 +29,8 @@ public class SpiderClockDream extends android.service.dreams.DreamService {
     private GradientDrawable glow;
     private int hueSlot;
     private int currentHue;
+    /** Running glow hue fade, kept so it can be stopped with the dream. */
+    private android.animation.ValueAnimator hueFade;
 
     private final Runnable tick = new Runnable() {
         @Override
@@ -69,13 +71,23 @@ public class SpiderClockDream extends android.service.dreams.DreamService {
     @Override
     public void onDreamingStopped() {
         ui.removeCallbacks(tick);
+        stopAnimations();
         super.onDreamingStopped();
     }
 
     @Override
     public void onDetachedFromWindow() {
         ui.removeCallbacks(tick);
+        stopAnimations();
         super.onDetachedFromWindow();
+    }
+
+    private void stopAnimations() {
+        if (hueFade != null) {
+            hueFade.cancel();
+            hueFade = null;
+        }
+        if (timeGroup != null) timeGroup.animate().cancel();
     }
 
     private void moveThenAppear() {
@@ -105,13 +117,14 @@ public class SpiderClockDream extends android.service.dreams.DreamService {
     }
 
     private void shiftHue() {
+        if (hueFade != null) hueFade.cancel();
         final int from = currentHue;
         hueSlot = (hueSlot + 1) % HUES.length;
-        android.animation.ValueAnimator fade = android.animation.ValueAnimator.ofObject(
+        hueFade = android.animation.ValueAnimator.ofObject(
                 new android.animation.ArgbEvaluator(), from, HUES[hueSlot]);
-        fade.setDuration(HUE_SHIFT_MS);
-        fade.addUpdateListener(a -> applyHue((int) a.getAnimatedValue()));
-        fade.start();
+        hueFade.setDuration(HUE_SHIFT_MS);
+        hueFade.addUpdateListener(a -> applyHue((int) a.getAnimatedValue()));
+        hueFade.start();
     }
 
     /** 25% alpha in the middle, 8% halfway out, clear at the rim, all of one hue. */
