@@ -3,6 +3,8 @@ package com.spidertv.launcher;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Map;
+
 /**
  * Choices made on the in-app Settings screen, kept in SharedPreferences. Every write bumps a revision
  * counter so Home can tell on its next resume that something changed.
@@ -64,5 +66,33 @@ final class SpiderUserSettings {
 
     void putText(String key, String value) {
         store.edit().putString(key, value).putInt(REVISION, revision() + 1).apply();
+    }
+
+    /** Everything a layout backup carries: only the keys the user has set, plus both app lists. */
+    SpiderBackup.Layout backupLayout() {
+        final SpiderBackup.Layout out = new SpiderBackup.Layout();
+        for (String key : SpiderBackup.FLAG_KEYS) {
+            if (store.contains(key)) out.settings.put(key, store.getBoolean(key, true));
+        }
+        if (store.contains(CLOCK_FORMAT)) out.settings.put(CLOCK_FORMAT, clockFormat());
+        out.hidden = SpiderAppOrder.split(text(HIDDEN_APPS));
+        out.order = SpiderAppOrder.split(text(APP_ORDER));
+        out.wallpaper = SpiderBackup.wallpaperKind(text(WALLPAPER));
+        return out;
+    }
+
+    /**
+     * Saves a merged backup layout in one write and bumps the revision so Home redraws on resume. The
+     * wallpaper token is left alone.
+     */
+    boolean restore(SpiderBackup.Layout layout) {
+        final SharedPreferences.Editor edit = store.edit();
+        for (Map.Entry<String, Object> e : layout.settings.entrySet()) {
+            if (e.getValue() instanceof Boolean) edit.putBoolean(e.getKey(), (Boolean) e.getValue());
+            else if (e.getValue() instanceof Integer) edit.putInt(e.getKey(), (Integer) e.getValue());
+        }
+        edit.putString(HIDDEN_APPS, SpiderAppOrder.join(layout.hidden));
+        edit.putString(APP_ORDER, SpiderAppOrder.join(layout.order));
+        return edit.putInt(REVISION, revision() + 1).commit();
     }
 }
