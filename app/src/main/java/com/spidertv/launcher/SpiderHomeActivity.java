@@ -35,7 +35,8 @@ import android.widget.Toast;
  *
  * {@link SpiderHomeController} draws what is on screen (carousel, greeting, header pills). This activity
  * runs the lifecycle around it and everything a pill opens: the source picker, the network and Bluetooth
- * shortcuts, system Settings, and the recents screen (Mi / menu keys, or a quick second Home press).
+ * shortcuts, system Settings (a long press opens the default-home chooser), and the recents screen
+ * (Mi / menu keys, or a quick second Home press).
  */
 public class SpiderHomeActivity extends android.app.Activity {
 
@@ -192,7 +193,7 @@ public class SpiderHomeActivity extends android.app.Activity {
 
         @Override
         public void settingsMenu() {
-            launchSettings();
+            start(new Intent(SpiderHomeActivity.this, SpiderSettingsActivity.class));
         }
 
         @Override

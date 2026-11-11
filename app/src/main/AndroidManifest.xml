@@ -58,7 +58,8 @@
             </intent-filter>
         </activity>
 
-        <!-- Invisible trampoline that opens the system "default home" chooser. -->
+        <!-- Invisible trampoline that opens the system "default home" chooser; started by a long press
+             on the Settings pill or tile. -->
         <activity android:name=".SpiderSettingsActivity" android:exported="false"
             android:theme="@android:style/Theme.NoDisplay"
             android:taskAffinity="" android:excludeFromRecents="true"/>
