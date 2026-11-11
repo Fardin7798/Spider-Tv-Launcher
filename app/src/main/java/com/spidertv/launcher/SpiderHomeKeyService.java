@@ -32,17 +32,13 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
 
     private int[] settingsScans = new int[0];
     private int[] settingsCodes = new int[0];
-    /** Loaded together with the other settings-key knobs; not acted on yet. */
-    private boolean settingsOpensPanel;
 
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
         settingsScans = getResources().getIntArray(R.array.spider_settings_scancodes);
         // config.json can replace these; theme.sh restarts the service after editing it.
-        SpiderPrefs prefs = SpiderPrefs.read(this);
-        settingsCodes = prefs.extraSettingsKeys;
-        settingsOpensPanel = prefs.settingsKeyOpensPanel;
+        settingsCodes = SpiderPrefs.read(this).extraSettingsKeys;
     }
 
     private static boolean contains(int[] haystack, int needle) {

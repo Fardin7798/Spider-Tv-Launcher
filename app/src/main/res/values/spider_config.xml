@@ -30,8 +30,6 @@
     <!-- Two lists: raw scancodes, then Android keycodes. -->
     <integer-array name="spider_settings_scancodes"></integer-array>
     <integer-array name="spider_settings_keycodes"></integer-array>
-    <!-- true: such a key opens the system quick panel rather than full Settings. -->
-    <bool name="spider_settings_as_panel">false</bool>
 
     <!-- ===== Network pill ===== -->
     <!-- Package launched from the pill; also turns on the "VPN off" badge. -->
