@@ -77,6 +77,9 @@ public class SpiderHomeActivity extends android.app.Activity {
     private boolean appsDirty = true;
     /** PackageManager change cursor (getChangedPackages); catches installs and removals made while stopped. */
     private int packageSeq;
+    /** SpiderUserSettings revision Home last drew; a newer one means the Settings screen changed something. */
+    private int settingsSeen;
+    private SpiderPrefs prefs;
 
     private final android.os.Handler ui = new android.os.Handler(android.os.Looper.getMainLooper());
 
@@ -139,7 +142,8 @@ public class SpiderHomeActivity extends android.app.Activity {
         setContentView(R.layout.activity_main_spider);
         dp = getResources().getDisplayMetrics().density;
 
-        final SpiderPrefs prefs = SpiderPrefs.read(this);
+        prefs = SpiderPrefs.read(this);
+        settingsSeen = new SpiderUserSettings(this).revision();
         tunerPackage = prefs.tunerPackage;
         tunerAction = prefs.tunerAction;
         sourceIntentAction = prefs.sourceIntentAction;
@@ -204,7 +208,7 @@ public class SpiderHomeActivity extends android.app.Activity {
 
         @Override
         public void launcherSettings() {
-            launchSettings();
+            startActivity(new Intent(SpiderHomeActivity.this, SpiderLauncherSettingsActivity.class));
         }
     }
 
@@ -234,6 +238,25 @@ public class SpiderHomeActivity extends android.app.Activity {
         return true;
     }
 
+    /**
+     * Picks up Settings screen changes. A motion change rebuilds the activity (the carousel and clock take
+     * motion once); anything else is redrawn in place. True when the activity is being recreated.
+     */
+    private boolean settingsChanged() {
+        final int now = new SpiderUserSettings(this).revision();
+        if (now == settingsSeen) return false;
+        settingsSeen = now;
+        final SpiderPrefs fresh = SpiderPrefs.read(this);
+        if (fresh.motionOn != prefs.motionOn || fresh.motionGentle != prefs.motionGentle) {
+            recreate();
+            return true;
+        }
+        prefs = fresh;
+        if (home != null) home.update(fresh);
+        appsDirty = false;
+        return false;
+    }
+
     /** Opens the recents screen; false if starting it threw. */
     private boolean launchRecents() {
         try {
@@ -258,6 +281,7 @@ public class SpiderHomeActivity extends android.app.Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (settingsChanged()) return;
         if (home != null) {
             home.onResume(appsDirty);
             appsDirty = false;
@@ -417,7 +441,12 @@ public class SpiderHomeActivity extends android.app.Activity {
      * TV) if installed; else the plain action again so the caller shows "not available".
      */
     private Intent settingsIntent(String action) {
-        final PackageManager pm = getPackageManager();
+        return settingsIntent(this, action);
+    }
+
+    /** See {@link #settingsIntent(String)}; shared with the launcher's own Settings screen. */
+    static Intent settingsIntent(android.content.Context context, String action) {
+        final PackageManager pm = context.getPackageManager();
         final Intent plain = new Intent(action);
         if (plain.resolveActivity(pm) != null) return plain;
         final Intent mi = new Intent().setComponent(MI_SETTINGS);

@@ -18,7 +18,8 @@ import android.util.Log;
  *
  * Every knob starts from res/values/spider_config.xml. Placing a {@code config.json} file in the app's
  * external files folder replaces individual knobs; a key that is missing, or whose JSON value has the
- * wrong type, leaves the resource value in place.
+ * wrong type, leaves the resource value in place. Choices made on the in-app Settings screen
+ * (SpiderUserSettings) are applied last.
  */
 final class SpiderPrefs {
 
@@ -42,8 +43,19 @@ final class SpiderPrefs {
     final boolean motionGentle;
     final String vpnPackage;
     final int[] extraSettingsKeys;
+    // Settings screen choices (SpiderUserSettings).
+    final boolean showClock;
+    final boolean showDate;
+    final boolean showGreeting;
+    final boolean phoneApps;
+    final int clockFormat;
 
     private SpiderPrefs(Knobs k) {
+        clockFormat = k.clockFormat;
+        phoneApps = k.phoneApps;
+        showGreeting = k.showGreeting;
+        showDate = k.showDate;
+        showClock = k.showClock;
         extraSettingsKeys = k.settingsKeys;
         vpnPackage = k.vpnPkg;
         motionGentle = k.gentle;
@@ -67,6 +79,7 @@ final class SpiderPrefs {
         File where = overrideFolder(context);
         JSONObject json = readOverride(where != null ? new File(where, OVERRIDE_FILE) : null);
         if (json != null) knobs.override(json);
+        knobs.apply(new SpiderUserSettings(context));
         return new SpiderPrefs(knobs);
     }
 
@@ -76,6 +89,8 @@ final class SpiderPrefs {
         String tunerPkg, tunerAction, panelComponent, panelAction, sourceAction, vpnPkg;
         boolean motion, gentle;
         int[] settingsKeys;
+        boolean showClock = true, showDate = true, showGreeting = true, phoneApps = true;
+        int clockFormat = SpiderUserSettings.CLOCK_SYSTEM;
 
         static Knobs defaults(android.content.res.Resources res) {
             Knobs k = new Knobs();
@@ -106,6 +121,17 @@ final class SpiderPrefs {
             gentle = asBool(json.opt("reduced_motion"), gentle);
             vpnPkg = asString(json.opt("vpn_app"), vpnPkg);
             settingsKeys = asKeyCodes(json.opt("settings_key_keycodes"), settingsKeys);
+        }
+
+        /** Settings screen choices; motion keys win over config.json only once the user has set them. */
+        void apply(SpiderUserSettings user) {
+            showClock = user.flag(SpiderUserSettings.SHOW_CLOCK, true);
+            showDate = user.flag(SpiderUserSettings.SHOW_DATE, true);
+            showGreeting = user.flag(SpiderUserSettings.SHOW_GREETING, true);
+            phoneApps = user.flag(SpiderUserSettings.PHONE_APPS, true);
+            clockFormat = user.clockFormat();
+            motion = user.flag(SpiderUserSettings.ANIMATIONS, motion);
+            gentle = user.flag(SpiderUserSettings.REDUCED_MOTION, gentle);
         }
     }
 

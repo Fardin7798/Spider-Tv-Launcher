@@ -1,0 +1,29 @@
+<!--
+  Launcher Settings and Manage apps screens: a heading over a scrolling glass sheet. The activity fills
+  @id/spiderRows with spider_input_row rows (D-pad Up/Down moves between them) and plain section labels.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent" android:layout_width="match_parent"
+    android:background="@drawable/spider_bg_night">
+
+    <LinearLayout android:orientation="vertical"
+        android:layout_height="match_parent" android:layout_width="520dp"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="36dp" android:paddingBottom="24dp">
+
+        <TextView android:id="@+id/spiderSettingsTitle" style="@style/SpiderText.Pill"
+            android:layout_height="wrap_content" android:layout_width="match_parent"
+            android:layout_marginBottom="14dp" android:paddingStart="6dp" android:paddingEnd="6dp"
+            android:fontFamily="@font/spider_inter_bold" android:textSize="28sp"
+            android:textColor="@color/spider_text_title"/>
+
+        <ScrollView android:id="@+id/spiderSettingsScroll"
+            android:layout_height="0dp" android:layout_width="match_parent" android:layout_weight="1"
+            android:background="@drawable/spider_glass_panel" android:padding="@dimen/spider_os_panel_padding"
+            android:scrollbars="none" android:fillViewport="false">
+
+            <LinearLayout android:id="@+id/spiderRows" android:orientation="vertical"
+                android:layout_height="wrap_content" android:layout_width="match_parent"/>
+        </ScrollView>
+    </LinearLayout>
+</FrameLayout>

@@ -44,6 +44,26 @@
     <!-- java.text date pattern shared by home and screensaver -->
     <string name="spider_date_pattern">EEEE  d MMMM</string>
 
+    <!-- ===== Launcher Settings screen ===== -->
+    <string name="spider_prefs_title">Launcher settings</string>
+    <string name="spider_prefs_section_home">Home screen</string>
+    <string name="spider_prefs_section_motion">Motion</string>
+    <string name="spider_prefs_section_more">More</string>
+    <string name="spider_prefs_show_clock">Show clock</string>
+    <string name="spider_prefs_clock_format">Clock format</string>
+    <string name="spider_prefs_clock_system">Follow TV</string>
+    <string name="spider_prefs_clock_12h">12-hour</string>
+    <string name="spider_prefs_clock_24h">24-hour</string>
+    <string name="spider_prefs_show_date">Show date</string>
+    <string name="spider_prefs_show_greeting">Show greeting</string>
+    <string name="spider_prefs_phone_apps">Show phone apps</string>
+    <string name="spider_prefs_animations">Animations</string>
+    <string name="spider_prefs_reduced_motion">Reduced motion</string>
+    <string name="spider_prefs_default_home">Default home app</string>
+    <string name="spider_prefs_system">TV settings</string>
+    <string name="spider_prefs_on">On</string>
+    <string name="spider_prefs_off">Off</string>
+
     <!-- ===== Errors and hints ===== -->
     <string name="spider_cant_open">Can\'t open %1$s</string>
     <string name="spider_unavailable">Not available on this TV</string>

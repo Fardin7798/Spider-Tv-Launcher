@@ -64,10 +64,15 @@
         </activity>
 
         <!-- Invisible trampoline that opens the system "default home" chooser; started by a long press
-             on the Settings pill or tile. -->
+             on the Settings pill or tile, or from the launcher's Settings screen. -->
         <activity android:name=".SpiderSettingsActivity" android:exported="false"
             android:theme="@android:style/Theme.NoDisplay"
             android:taskAffinity="" android:excludeFromRecents="true"/>
+
+        <!-- Launcher Settings screen, opened from the Settings tile at the end of the Home row. -->
+        <activity android:name=".SpiderLauncherSettingsActivity" android:exported="false"
+            android:screenOrientation="landscape" android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
 
         <!-- Recent-apps overlay; also answers Xiaomi's hot-key intent. -->
         <activity android:name=".RecentAppsActivity" android:exported="true"

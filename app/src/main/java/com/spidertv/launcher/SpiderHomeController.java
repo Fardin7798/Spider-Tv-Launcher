@@ -57,21 +57,22 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
     private static String lastFocusKey;
 
     private final Activity act;
-    private final SpiderPrefs cfg;
+    private SpiderPrefs cfg;
     private final Actions actions;
-    private final Set<String> hidden;
+    private final Set<String> hidden = new HashSet<>();
     /** Packages on the row through their phone (LAUNCHER) entry only; rebuilt by each loadApps(). */
     private final Set<String> phoneApps = new HashSet<>();
     private final FrameLayout root;
     private final SpiderCarousel row;
     private final TextView title, greeting;
+    private final FlipClockView clock;
+    private final View date;
     private final View btnInputs, btnWifi, btnBluetooth, btnSettings;
 
     SpiderHomeController(Activity act, SpiderPrefs cfg, Actions actions) {
         this.act = act;
         this.cfg = cfg;
         this.actions = actions;
-        this.hidden = new HashSet<>(cfg.hiddenPackages);
         root = act.findViewById(R.id.spiderRoot);
         title = act.findViewById(R.id.spiderHeroName);
         greeting = act.findViewById(R.id.spiderGreeting);
@@ -79,8 +80,10 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
         btnWifi = act.findViewById(R.id.spiderNetworkPill);
         btnBluetooth = act.findViewById(R.id.btnBluetooth);
         btnSettings = act.findViewById(R.id.spiderSettingsPill);
-        FlipClockView clock = act.findViewById(R.id.flipClock);
+        clock = act.findViewById(R.id.flipClock);
+        date = act.findViewById(R.id.spiderDate);
         clock.setAnimations(cfg.motionOn && !cfg.motionGentle);
+        applyLook();
 
         // The live row takes the preview's place in the drawing order: above the backdrop, under the text and pill.
         for (int id : PREVIEW) {
@@ -121,6 +124,23 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
                 return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v == pill[pill.length - 1];
             });
         }
+    }
+
+    /** Takes newer settings (same motion values, a change there recreates Home) and redraws what they touch. */
+    void update(SpiderPrefs fresh) {
+        cfg = fresh;
+        applyLook();
+        reload();
+    }
+
+    /** Clock, date and greeting visibility and the clock's 12/24-hour digits, from the settings. */
+    private void applyLook() {
+        hidden.clear();
+        hidden.addAll(cfg.hiddenPackages);
+        clock.setVisibility(cfg.showClock ? View.VISIBLE : View.GONE);
+        clock.setClockFormat(cfg.clockFormat);
+        date.setVisibility(cfg.showDate ? View.VISIBLE : View.GONE);
+        greeting.setVisibility(cfg.showGreeting ? View.VISIBLE : View.GONE);
     }
 
     void reload() {
@@ -169,8 +189,11 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
             if (addApp(pm, ri, cn, apps)) tvPackages.add(cn.getPackageName());
         }
         // Phone apps (LAUNCHER only, no TV entry): one tile per package; a package with a TV entry keeps that one.
+        // The Settings screen can turn them off.
         Intent phone = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
-        for (ResolveInfo ri : pm.queryIntentActivities(phone, 0)) {
+        List<ResolveInfo> phoneEntries = cfg.phoneApps ? pm.queryIntentActivities(phone, 0)
+                : Collections.<ResolveInfo>emptyList();
+        for (ResolveInfo ri : phoneEntries) {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
             if (tvPackages.contains(pkg) || phoneApps.contains(pkg)) continue;
