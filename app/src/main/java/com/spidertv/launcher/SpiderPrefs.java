@@ -49,8 +49,14 @@ final class SpiderPrefs {
     final boolean showGreeting;
     final boolean phoneApps;
     final int clockFormat;
+    /** Hidden from the row on the Manage apps screen (on top of hiddenPackages). */
+    final List<String> userHidden;
+    /** Row order set on the Manage apps screen; empty for the built-in order. */
+    final List<String> appOrder;
 
     private SpiderPrefs(Knobs k) {
+        appOrder = Collections.unmodifiableList(k.appOrder);
+        userHidden = Collections.unmodifiableList(k.userHidden);
         clockFormat = k.clockFormat;
         phoneApps = k.phoneApps;
         showGreeting = k.showGreeting;
@@ -91,6 +97,7 @@ final class SpiderPrefs {
         int[] settingsKeys;
         boolean showClock = true, showDate = true, showGreeting = true, phoneApps = true;
         int clockFormat = SpiderUserSettings.CLOCK_SYSTEM;
+        List<String> userHidden = new ArrayList<>(), appOrder = new ArrayList<>();
 
         static Knobs defaults(android.content.res.Resources res) {
             Knobs k = new Knobs();
@@ -132,6 +139,8 @@ final class SpiderPrefs {
             clockFormat = user.clockFormat();
             motion = user.flag(SpiderUserSettings.ANIMATIONS, motion);
             gentle = user.flag(SpiderUserSettings.REDUCED_MOTION, gentle);
+            userHidden = SpiderAppOrder.split(user.text(SpiderUserSettings.HIDDEN_APPS));
+            appOrder = SpiderAppOrder.split(user.text(SpiderUserSettings.APP_ORDER));
         }
     }
 

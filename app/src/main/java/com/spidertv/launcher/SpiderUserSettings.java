@@ -16,6 +16,9 @@ final class SpiderUserSettings {
     static final String CLOCK_FORMAT = "clock_format";
     static final String ANIMATIONS = "animations";
     static final String REDUCED_MOTION = "reduced_motion";
+    /** Comma-separated package lists written by Manage apps. */
+    static final String HIDDEN_APPS = "hidden_apps";
+    static final String APP_ORDER = "app_order";
     private static final String REVISION = "revision";
 
     /** Clock format values: follow the TV, always 12-hour, always 24-hour. */

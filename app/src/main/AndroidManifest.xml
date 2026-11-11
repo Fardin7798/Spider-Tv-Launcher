@@ -74,6 +74,11 @@
             android:screenOrientation="landscape" android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
 
+        <!-- Manage apps: hide, show and reorder the Home row; opened from the Settings screen. -->
+        <activity android:name=".SpiderAppsActivity" android:exported="false"
+            android:screenOrientation="landscape" android:excludeFromRecents="true"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
+
         <!-- Recent-apps overlay; also answers Xiaomi's hot-key intent. -->
         <activity android:name=".RecentAppsActivity" android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"

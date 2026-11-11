@@ -137,6 +137,7 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
     private void applyLook() {
         hidden.clear();
         hidden.addAll(cfg.hiddenPackages);
+        hidden.addAll(cfg.userHidden);
         clock.setVisibility(cfg.showClock ? View.VISIBLE : View.GONE);
         clock.setClockFormat(cfg.clockFormat);
         date.setVisibility(cfg.showDate ? View.VISIBLE : View.GONE);
@@ -176,6 +177,19 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
     // ---- apps ------------------------------------------------------------------------------------
 
     private List<SpiderCarousel.Item> loadApps() {
+        List<SpiderCarousel.Item> apps = installedApps(act, cfg, hidden, phoneApps);
+        apps.add(new SpiderCarousel.Item(SpiderCarousel.Item.SETTINGS, act.getString(R.string.spider_settings_label), null, null,
+                null, false, false));
+        return apps;
+    }
+
+    /**
+     * Every app the row can show except this launcher and the {@code skip} packages, in row order: the
+     * Manage apps order first, then dock apps, then by name. Fills {@code phoneApps} with the packages
+     * shown through their phone (LAUNCHER) entry. Also lists the apps on the Manage apps screen.
+     */
+    static List<SpiderCarousel.Item> installedApps(Activity act, SpiderPrefs cfg, Set<String> skip,
+            Set<String> phoneApps) {
         PackageManager pm = act.getPackageManager();
         List<SpiderCarousel.Item> apps = new ArrayList<>();
         Set<String> seen = new HashSet<>();
@@ -186,7 +200,7 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
             if (ri.activityInfo == null) continue;
             ComponentName cn = new ComponentName(ri.activityInfo.packageName, ri.activityInfo.name);
             if (!seen.add(cn.flattenToShortString())) continue;
-            if (addApp(pm, ri, cn, apps)) tvPackages.add(cn.getPackageName());
+            if (addApp(act, pm, ri, cn, skip, apps)) tvPackages.add(cn.getPackageName());
         }
         // Phone apps (LAUNCHER only, no TV entry): one tile per package; a package with a TV entry keeps that one.
         // The Settings screen can turn them off.
@@ -197,7 +211,7 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
             if (tvPackages.contains(pkg) || phoneApps.contains(pkg)) continue;
-            if (addApp(pm, ri, new ComponentName(pkg, ri.activityInfo.name), apps)) phoneApps.add(pkg);
+            if (addApp(act, pm, ri, new ComponentName(pkg, ri.activityInfo.name), skip, apps)) phoneApps.add(pkg);
         }
         List<String> fav = cfg.dockPackages;
         Collections.sort(apps, (a, b) -> {
@@ -209,15 +223,15 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
             }
             return a.label.compareToIgnoreCase(b.label);
         });
-        apps.add(new SpiderCarousel.Item(SpiderCarousel.Item.SETTINGS, act.getString(R.string.spider_settings_label), null, null,
-                null, false, false));
+        SpiderAppOrder.arrange(apps, cfg.appOrder, item -> item.pkg);
         return apps;
     }
 
-    /** Adds the tile for one launchable activity; false if this launcher or a hidden package. */
-    private boolean addApp(PackageManager pm, ResolveInfo ri, ComponentName cn, List<SpiderCarousel.Item> apps) {
+    /** Adds the tile for one launchable activity; false if this launcher or a skipped package. */
+    private static boolean addApp(Activity act, PackageManager pm, ResolveInfo ri, ComponentName cn, Set<String> skip,
+            List<SpiderCarousel.Item> apps) {
         String pkg = cn.getPackageName();
-        if (pkg.equals(act.getPackageName()) || hidden.contains(pkg)) return false;
+        if (pkg.equals(act.getPackageName()) || skip.contains(pkg)) return false;
         String label = "org.smarttube.stable".equals(pkg) ? "YouTube"
                 : SpiderLabels.tileName(String.valueOf(ri.loadLabel(pm)), pkg);
         int art = designArt(pkg);

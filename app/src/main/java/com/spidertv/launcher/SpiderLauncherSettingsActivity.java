@@ -44,6 +44,9 @@ public class SpiderLauncherSettingsActivity extends android.app.Activity {
         toggle(R.string.spider_prefs_show_greeting, SpiderUserSettings.SHOW_GREETING, now.showGreeting);
         toggle(R.string.spider_prefs_phone_apps, SpiderUserSettings.PHONE_APPS, now.phoneApps);
 
+        SpiderSettingsRows.section(rows, R.string.spider_prefs_section_apps);
+        link(R.string.spider_prefs_manage_apps, new Intent(this, SpiderAppsActivity.class));
+
         SpiderSettingsRows.section(rows, R.string.spider_prefs_section_motion);
         toggle(R.string.spider_prefs_animations, SpiderUserSettings.ANIMATIONS, now.motionOn);
         toggle(R.string.spider_prefs_reduced_motion, SpiderUserSettings.REDUCED_MOTION, now.motionGentle);

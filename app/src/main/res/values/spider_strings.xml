@@ -61,8 +61,19 @@
     <string name="spider_prefs_reduced_motion">Reduced motion</string>
     <string name="spider_prefs_default_home">Default home app</string>
     <string name="spider_prefs_system">TV settings</string>
+    <string name="spider_prefs_section_apps">Apps</string>
+    <string name="spider_prefs_manage_apps">Manage apps</string>
     <string name="spider_prefs_on">On</string>
     <string name="spider_prefs_off">Off</string>
+
+    <!-- ===== Manage apps screen ===== -->
+    <string name="spider_apps_title">Manage apps</string>
+    <string name="spider_apps_shown">On Home</string>
+    <string name="spider_apps_hidden">Hidden</string>
+    <string name="spider_apps_moving">Moving: Up / Down, OK to drop</string>
+    <string name="spider_apps_hide">Hide from Home</string>
+    <string name="spider_apps_show">Show on Home</string>
+    <string name="spider_apps_move">Move</string>
 
     <!-- ===== Errors and hints ===== -->
     <string name="spider_cant_open">Can\'t open %1$s</string>
