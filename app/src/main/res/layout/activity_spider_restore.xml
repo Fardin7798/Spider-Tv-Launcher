@@ -1,0 +1,37 @@
+<!--
+  "Restore Spider layout": a small glass sheet over the dimmed sender or Settings screen. While the backup
+  is read only the bar shows; then the status says what it holds (or why it was refused) and the rows
+  below offer Restore / Cancel, or Close. D-pad Up/Down moves between them.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent" android:layout_width="match_parent"
+    android:background="#B3000000">
+
+    <LinearLayout android:orientation="vertical" android:gravity="center_horizontal"
+        android:layout_height="wrap_content" android:layout_width="460dp"
+        android:layout_gravity="center"
+        android:background="@drawable/spider_glass_panel" android:padding="24dp">
+
+        <TextView android:id="@+id/spiderRestoreTitle" style="@style/SpiderText.Pill"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:fontFamily="@font/spider_inter_bold" android:textSize="@dimen/spider_os_text_headline"
+            android:textColor="@color/spider_text_title" android:text="@string/spider_restore_label"/>
+
+        <ProgressBar android:id="@+id/spiderRestoreProgress"
+            style="@android:style/Widget.Material.ProgressBar.Horizontal"
+            android:layout_height="wrap_content" android:layout_width="match_parent"
+            android:layout_marginTop="18dp" android:indeterminate="true"
+            android:indeterminateTint="@color/spider_os_label_primary"/>
+
+        <TextView android:id="@+id/spiderRestoreStatus"
+            android:layout_height="wrap_content" android:layout_width="match_parent"
+            android:layout_marginTop="12dp" android:gravity="center_horizontal"
+            android:fontFamily="sans-serif-medium" android:textSize="@dimen/spider_os_text_caption1"
+            android:lineSpacingExtra="2dp"
+            android:textColor="#B3FFFFFF" android:text="@string/spider_restore_reading"/>
+
+        <LinearLayout android:id="@+id/spiderRestoreRows" android:orientation="vertical"
+            android:layout_height="wrap_content" android:layout_width="match_parent"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared through the FileProvider: only the layout backup copy written when the TV has no file picker. -->
+<paths>
+    <cache-path name="backup" path="backup/"/>
+</paths>
