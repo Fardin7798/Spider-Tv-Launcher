@@ -72,6 +72,8 @@ public class RecentAppsActivity extends Activity {
     private final List<View> cardViews = new ArrayList<>();
     private int selected = 0;
     private int glowColor = GLOW_DEFAULT;
+    /** True while a card's close animation runs; further Close presses are ignored until it ends. */
+    private boolean closing;
 
     private View glowBg, actionsRow, hintBrowse, hintOpen, hintClose;
     private TextView txtSubtitle, btnClearAll, btnSettings, btnOpen, btnClose, btnInfo;
@@ -621,14 +623,19 @@ public class RecentAppsActivity extends Activity {
     }
 
     private void closeSelected() {
+        if (closing) return;
         final RecentApp a = current();
         if (a == null) return;
+        closing = true;
         am.killBackgroundProcesses(a.pkg);
         prefs.edit().putLong(a.pkg, System.currentTimeMillis()).apply();
 
-        final int idx = selected;
-        final View item = cardViews.get(idx);
+        final View item = cardViews.get(selected);
         item.animate().translationY(dp(40)).alpha(0f).setDuration(220).withEndAction(() -> {
+            closing = false;
+            // re-resolve: the lists may have changed while the card animated out (e.g. Clear all)
+            final int idx = cardViews.indexOf(item);
+            if (idx < 0) return;
             cardRow.removeView(item);
             cardViews.remove(idx);
             apps.remove(idx);
@@ -648,6 +655,7 @@ public class RecentAppsActivity extends Activity {
             ed.putLong(a.pkg, now);
         }
         ed.apply();
+        closing = false;
         apps.clear();
         cardViews.clear();
         cardRow.removeAllViews();
