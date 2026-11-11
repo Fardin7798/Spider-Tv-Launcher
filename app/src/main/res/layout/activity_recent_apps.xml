@@ -62,7 +62,7 @@
             android:layout_marginTop="10dp"
             android:fontFamily="@font/spider_inter_medium"
             android:includeFontPadding="false"
-            android:text="5 apps open  ·  1.2 GB memory free"
+            android:text="5 apps used today  ·  1.2 GB memory free"
             android:textColor="#C8C4E2"
             android:textSize="13.5sp" />
     </LinearLayout>

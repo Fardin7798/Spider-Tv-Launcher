@@ -27,6 +27,13 @@
     <!-- ===== Recents: these only hide a card here, they do not stop the app ===== -->
     <string name="spider_recents_remove">Remove</string>
     <string name="spider_recents_clear">Clear list</string>
+    <!-- counted since local midnight -->
+    <plurals name="spider_recents_count">
+        <item quantity="one">%d app used today</item>
+        <item quantity="other">%d apps used today</item>
+    </plurals>
+    <string name="spider_recents_subtitle">%1$s  ·  %2$.1f GB memory free</string>
+    <string name="spider_recents_used_today">Used %1$s today</string>
 
     <!-- ===== Greeting, by hour ===== -->
     <string name="spider_greet_morning">Good morning</string>

@@ -45,6 +45,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -269,8 +270,7 @@ public class RecentAppsActivity extends Activity {
         skip.add(getPackageName());
         if (hasUsageAccess()) {
             UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
-            long now = System.currentTimeMillis();
-            Map<String, UsageStats> stats = usm.queryAndAggregateUsageStats(now - DateUtils.DAY_IN_MILLIS, now);
+            Map<String, UsageStats> stats = usm.queryAndAggregateUsageStats(startOfToday(), System.currentTimeMillis());
             for (UsageStats s : stats.values()) {
                 String pkg = s.getPackageName();
                 if (skip.contains(pkg) || s.getLastTimeUsed() <= 0 || s.getTotalTimeInForeground() <= 0) continue;
@@ -377,7 +377,8 @@ public class RecentAppsActivity extends Activity {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         am.getMemoryInfo(mi);
         double gb = mi.availMem / (1024.0 * 1024 * 1024);
-        txtSubtitle.setText(String.format(Locale.US, "%d apps open  ·  %.1f GB memory free", apps.size(), gb));
+        String count = getResources().getQuantityString(R.plurals.spider_recents_count, apps.size(), apps.size());
+        txtSubtitle.setText(String.format(Locale.US, getString(R.string.spider_recents_subtitle), count, gb));
     }
 
     private static final java.util.Set<String> SMARTTUBE = new HashSet<>(java.util.Arrays.asList(
@@ -510,7 +511,7 @@ public class RecentAppsActivity extends Activity {
             cardBg.setVisibility(View.VISIBLE);
         }
 
-        ((TextView) item.findViewById(R.id.line1)).setText("Used " + formatDuration(a.fgTime) + " today");
+        ((TextView) item.findViewById(R.id.line1)).setText(getString(R.string.spider_recents_used_today, formatDuration(a.fgTime)));
         ((TextView) item.findViewById(R.id.txtName)).setText(a.label);
         ((TextView) item.findViewById(R.id.txtWhen)).setText(relative(a.lastUsed));
 
@@ -689,6 +690,16 @@ public class RecentAppsActivity extends Activity {
     }
 
     // ------------------------------------------------------------------ helpers
+
+    /** Local midnight today, so "today" counts match the TV's clock rather than the last 24 hours. */
+    private static long startOfToday() {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTimeInMillis();
+    }
 
     private String formatDuration(long ms) {
         long min = ms / 60000;
