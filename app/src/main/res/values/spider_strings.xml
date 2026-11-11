@@ -74,6 +74,8 @@
     <string name="spider_apps_hide">Hide from Home</string>
     <string name="spider_apps_show">Show on Home</string>
     <string name="spider_apps_move">Move</string>
+    <string name="spider_apps_info">App info</string>
+    <string name="spider_apps_uninstall">Uninstall</string>
 
     <!-- ===== Errors and hints ===== -->
     <string name="spider_cant_open">Can\'t open %1$s</string>

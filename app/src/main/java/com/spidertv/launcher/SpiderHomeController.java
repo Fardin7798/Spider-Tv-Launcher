@@ -91,7 +91,7 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
             if (v != null) root.removeView(v);
         }
         // Read after the preview is gone: the first view after it (the flip clock) is where the row goes.
-        int at = root.indexOfChild(act.findViewById(R.id.flipClock));
+        int at = root.indexOfChild(clock);
         row = new SpiderCarousel(act);
         row.setListener(this);
         row.setMotion(cfg.motionOn, cfg.motionGentle);

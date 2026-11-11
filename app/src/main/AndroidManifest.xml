@@ -15,6 +15,8 @@
     <uses-permission tools:ignore="CoarseFineLocation" android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- recents screen: usage stats (adb-granted) -->
     <uses-permission tools:ignore="ProtectedPermissions" android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <!-- Manage apps: open the system uninstall prompt (needed for ACTION_DELETE on API 28+) -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
 
     <!-- ===== Package visibility (API 30+) ===== -->
     <queries>
@@ -74,7 +76,7 @@
             android:screenOrientation="landscape" android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
 
-        <!-- Manage apps: hide, show and reorder the Home row; opened from the Settings screen. -->
+        <!-- Manage apps: hide, show, reorder, App info and uninstall; opened from the Settings screen. -->
         <activity android:name=".SpiderAppsActivity" android:exported="false"
             android:screenOrientation="landscape" android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"/>
