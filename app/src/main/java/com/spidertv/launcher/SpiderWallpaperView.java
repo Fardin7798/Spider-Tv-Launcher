@@ -56,7 +56,7 @@ final class SpiderWallpaperView extends FrameLayout implements TextureView.Surfa
         super(context);
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
         setFocusable(false);
-        setBackgroundColor(0xFF000000);
+        // No background of its own: until the photo or poster is decoded the default backdrop shows through.
 
         still = new ImageView(context);
         still.setScaleType(ImageView.ScaleType.CENTER_CROP);

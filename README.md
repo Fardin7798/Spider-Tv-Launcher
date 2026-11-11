@@ -35,6 +35,7 @@ An ultra-lightweight, ad-free Android TV launcher with a fan-made Spider theme: 
 - 🕰️ **Live Flip Clock:** On the home screen, plus a matching **Clock** screensaver.
 - 🎛️ **Quick Controls:** A top pill for Inputs, Wi-Fi and Bluetooth (pair remotes and accessories straight from Home).
 - ⚙️ **Launcher Settings:** Open the Settings tile at the end of the app row to show or hide the clock, date, greeting and phone apps, pick 12/24-hour digits, tune motion, and manage apps (hide, reorder, App info, uninstall), all with the remote.
+- 🖼️ **Custom Wallpaper:** Share a photo or video to **Set Spider wallpaper**, or pick one under Settings > Wallpaper, to put it behind Home; videos loop muted and hold their first frame with reduced motion. **Reset to default** brings the night backdrop back.
 - 🔄 **Recent Apps Switcher:** Smooth horizontal carousel of running apps with live task switching and quick task controls.
 - ⚡ **Zero Volume Lag (Hardware Preservation):** Unlike accessibility-based remappers that break Android's `InputDispatcher` repeat timer, our launcher preserves 100% hardware-speed volume hold acceleration.
 - 🎮 **Remote Gesture Shortcuts:** Double-press the Home button from anywhere to immediately bring up the App Switcher.
