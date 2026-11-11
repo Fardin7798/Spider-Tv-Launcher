@@ -7,6 +7,7 @@ import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,6 +42,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -584,10 +586,10 @@ public class RecentAppsActivity extends Activity {
         btnInfo.setOnClickListener(v -> {
             RecentApp a = current();
             if (a == null) return;
-            startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + a.pkg)));
+            safeStart(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + a.pkg)));
         });
         btnClearAll.setOnClickListener(v -> clearAll());
-        btnSettings.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_SETTINGS)));
+        btnSettings.setOnClickListener(v -> safeStart(new Intent(Settings.ACTION_SETTINGS)));
 
         View.OnKeyListener backToCards = (v, keyCode, e) -> {
             if (e.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_UP && !cardViews.isEmpty()) {
@@ -619,7 +621,16 @@ public class RecentAppsActivity extends Activity {
         Intent i = launchIntent(a.pkg);
         if (i == null) return;
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);
+        safeStart(i);
+    }
+
+    /** startActivity that never crashes Recents when the target is missing or refuses us. */
+    private void safeStart(Intent i) {
+        try {
+            startActivity(i);
+        } catch (ActivityNotFoundException | SecurityException e) {
+            Toast.makeText(this, "Can't open that here", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void closeSelected() {
