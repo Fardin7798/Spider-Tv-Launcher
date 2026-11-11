@@ -187,7 +187,7 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
             return a.label.compareToIgnoreCase(b.label);
         });
         apps.add(new SpiderCarousel.Item(SpiderCarousel.Item.SETTINGS, act.getString(R.string.spider_settings_label), null, null,
-                null, false));
+                null, false, false));
         return apps;
     }
 
@@ -198,9 +198,19 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
         String label = "org.smarttube.stable".equals(pkg) ? "YouTube"
                 : SpiderLabels.tileName(String.valueOf(ri.loadLabel(pm)), pkg);
         int art = designArt(pkg);
-        Drawable icon = art != 0 ? act.getDrawable(art) : ri.loadIcon(pm);
+        Drawable icon;
+        boolean wide = false;
+        if (art != 0) {
+            icon = act.getDrawable(art);
+        } else {
+            // Tiles are square, so a 16:9 banner only stands in for an app that ships no icon at all
+            // (loadIcon would give it the system's generic one).
+            Drawable banner = ri.getIconResource() == 0 ? ri.activityInfo.loadBanner(pm) : null;
+            wide = banner != null;
+            icon = wide ? banner : ri.loadIcon(pm);
+        }
         apps.add(new SpiderCarousel.Item(SpiderCarousel.Item.APP, label, cn, icon,
-                art != 0 ? designBox(art) : null, art == R.drawable.spider_icon_spotify));
+                art != 0 ? designBox(art) : null, art == R.drawable.spider_icon_spotify, wide));
         return true;
     }
 

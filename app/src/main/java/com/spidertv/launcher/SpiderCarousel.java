@@ -60,8 +60,11 @@ final class SpiderCarousel extends View {
         final float[] designBox;
         /** Spotify keeps its dark card from the design. */
         final boolean darkCard;
+        /** icon is the app's 16:9 TV banner rather than a square icon. */
+        final boolean wide;
 
-        Item(int kind, String label, ComponentName component, Drawable icon, float[] designBox, boolean darkCard) {
+        Item(int kind, String label, ComponentName component, Drawable icon, float[] designBox, boolean darkCard,
+                boolean wide) {
             this.kind = kind;
             this.label = label;
             this.component = component;
@@ -69,6 +72,7 @@ final class SpiderCarousel extends View {
             this.icon = icon;
             this.designBox = designBox;
             this.darkCard = darkCard;
+            this.wide = wide;
         }
 
         String key() {
@@ -688,6 +692,18 @@ final class SpiderCarousel extends View {
             y = -h + it.designBox[1] * w;
             bw = it.designBox[2] * w;
             bh = it.designBox[3] * w;
+        } else if (it.wide) {
+            // a banner across the card at its own aspect, kept inside the same box as a square icon would be
+            int dw = d.getIntrinsicWidth(), dh = d.getIntrinsicHeight();
+            float aspect = dw > 0 && dh > 0 ? (float) dh / dw : 9f / 16f;
+            bw = w * 0.84f;
+            bh = bw * aspect;
+            if (bh > bw) {
+                bh = bw;
+                bw = bh / aspect;
+            }
+            x = -bw / 2;
+            y = -bh / 2;
         } else {
             // an installed app's own icon, centred at the size of the design's icon art
             bw = bh = w * 0.62f;
