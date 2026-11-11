@@ -63,6 +63,14 @@
     <string name="spider_prefs_system">TV settings</string>
     <string name="spider_prefs_section_apps">Apps</string>
     <string name="spider_prefs_manage_apps">Manage apps</string>
+    <string name="spider_prefs_section_wallpaper">Wallpaper</string>
+    <string name="spider_prefs_wallpaper_choose">Choose wallpaper</string>
+    <string name="spider_prefs_wallpaper_reset">Reset to default</string>
+    <string name="spider_prefs_wallpaper_reset_done">Default wallpaper restored</string>
+    <string name="spider_prefs_wallpaper_default">Default</string>
+    <string name="spider_prefs_wallpaper_photo">Photo</string>
+    <string name="spider_prefs_wallpaper_video">Video</string>
+    <string name="spider_prefs_wallpaper_copying">Copying…</string>
     <string name="spider_prefs_on">On</string>
     <string name="spider_prefs_off">Off</string>
 
