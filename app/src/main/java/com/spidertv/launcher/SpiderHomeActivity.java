@@ -207,7 +207,7 @@ public class SpiderHomeActivity extends android.app.Activity {
         if (incoming == null || !incoming.hasCategory(Intent.CATEGORY_HOME)) return;
         final long at = android.os.SystemClock.uptimeMillis();
         final long gap = at - previousHomeAt;
-        Log.e(TAG, "onNewIntent: delta=" + gap);
+        Log.d(TAG, "onNewIntent: delta=" + gap);
         if (gap < HOME_TWICE_MS) {
             previousHomeAt = 0;
             if (launchRecents()) return;
@@ -296,7 +296,6 @@ public class SpiderHomeActivity extends android.app.Activity {
     public boolean dispatchKeyEvent(KeyEvent key) {
         final int code = key.getKeyCode();
         final int scan = key.getScanCode();
-        Log.e(TAG, "dispatch: action=" + key.getAction() + " key=" + code + " scan=" + scan);
         if (!opensRecents(code, scan)) return super.dispatchKeyEvent(key);
         if (key.getAction() != KeyEvent.ACTION_UP) return true;
         try {

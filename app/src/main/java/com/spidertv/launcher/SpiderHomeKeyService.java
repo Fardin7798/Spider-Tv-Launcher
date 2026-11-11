@@ -72,7 +72,6 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
 
     @Override
     protected boolean onKeyEvent(KeyEvent key) {
-        android.util.Log.e("HomeKeyTest", "key: " + key.getKeyCode() + " action: " + key.getAction());
         final int result = decide(key.getKeyCode(), key.getScanCode(), key.getAction() == KeyEvent.ACTION_UP,
                 key.isCanceled(), settingsScans, settingsCodes);
         if (result == PASS) return false;
@@ -87,7 +86,14 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
                     .setPackage(getPackageName())
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         }
-        if (next != null) startActivity(next);
+        if (next != null) {
+            try {
+                startActivity(next);
+            } catch (RuntimeException problem) {
+                // Target missing on this TV (e.g. no Settings activity): never crash the service.
+                android.util.Log.w("SpiderHomeKeyService", "could not open " + next, problem);
+            }
+        }
         return true;
     }
 
