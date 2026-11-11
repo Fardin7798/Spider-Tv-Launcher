@@ -24,6 +24,10 @@
     <string name="spider_source_disconnected">No device</string>
     <string name="spider_no_sources">No inputs found</string>
 
+    <!-- ===== Recents: these only hide a card here, they do not stop the app ===== -->
+    <string name="spider_recents_remove">Remove</string>
+    <string name="spider_recents_clear">Clear list</string>
+
     <!-- ===== Greeting, by hour ===== -->
     <string name="spider_greet_morning">Good morning</string>
     <string name="spider_greet_afternoon">Good afternoon</string>

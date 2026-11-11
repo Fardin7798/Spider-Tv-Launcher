@@ -13,9 +13,8 @@
     <!-- SSID lookup needs location on API 29+. Granted over adb by the install script and never
          requested in a dialog, hence the lint suppression. -->
     <uses-permission tools:ignore="CoarseFineLocation" android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <!-- recents screen: usage stats (adb-granted) and stopping background apps -->
+    <!-- recents screen: usage stats (adb-granted) -->
     <uses-permission tools:ignore="ProtectedPermissions" android:name="android.permission.PACKAGE_USAGE_STATS"/>
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
 
     <!-- ===== Package visibility (API 30+) ===== -->
     <queries>

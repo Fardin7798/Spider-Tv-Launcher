@@ -53,11 +53,12 @@ import java.util.Set;
 
 /**
  * Android TV "Recents" screen in the Spider look (night bg, Oswald/Inter, glow focus).
- * Remote: LEFT/RIGHT browse · OK open · DOWN -> "Close app" · BACK home.
+ * Remote: LEFT/RIGHT browse · OK open · DOWN -> "Remove" · BACK home.
+ * "Remove" and "Clear list" only hide cards from this list; a third-party launcher cannot stop
+ * other apps, so "App info" (Force stop) is the way to really close one.
  *
  * Manifest needs:
  *   <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions"/>
- *   <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
  * Grant usage access once from the laptop:
  *   adb shell appops set com.spidertv.launcher GET_USAGE_STATS allow
  */
@@ -74,7 +75,7 @@ public class RecentAppsActivity extends Activity {
     private final List<View> cardViews = new ArrayList<>();
     private int selected = 0;
     private int glowColor = GLOW_DEFAULT;
-    /** True while a card's close animation runs; further Close presses are ignored until it ends. */
+    /** True while a card's close animation runs; further Remove presses are ignored until it ends. */
     private boolean closing;
 
     private View glowBg, actionsRow, hintBrowse, hintOpen, hintClose;
@@ -647,13 +648,12 @@ public class RecentAppsActivity extends Activity {
         final RecentApp a = current();
         if (a == null) return;
         closing = true;
-        am.killBackgroundProcesses(a.pkg);
         prefs.edit().putLong(a.pkg, System.currentTimeMillis()).apply();
 
         final View item = cardViews.get(selected);
         item.animate().translationY(dp(40)).alpha(0f).setDuration(220).withEndAction(() -> {
             closing = false;
-            // re-resolve: the lists may have changed while the card animated out (e.g. Clear all)
+            // re-resolve: the lists may have changed while the card animated out (e.g. Clear list)
             final int idx = cardViews.indexOf(item);
             if (idx < 0) return;
             cardRow.removeView(item);
@@ -670,10 +670,7 @@ public class RecentAppsActivity extends Activity {
     private void clearAll() {
         SharedPreferences.Editor ed = prefs.edit();
         long now = System.currentTimeMillis();
-        for (RecentApp a : apps) {
-            am.killBackgroundProcesses(a.pkg);
-            ed.putLong(a.pkg, now);
-        }
+        for (RecentApp a : apps) ed.putLong(a.pkg, now);
         ed.apply();
         closing = false;
         apps.clear();
