@@ -60,6 +60,8 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
     private final SpiderPrefs cfg;
     private final Actions actions;
     private final Set<String> hidden;
+    /** Packages on the row through their phone (LAUNCHER) entry only; rebuilt by each loadApps(). */
+    private final Set<String> phoneApps = new HashSet<>();
     private final FrameLayout root;
     private final SpiderCarousel row;
     private final TextView title, greeting;
@@ -155,22 +157,24 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
 
     private List<SpiderCarousel.Item> loadApps() {
         PackageManager pm = act.getPackageManager();
-        Intent probe = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
-        List<ResolveInfo> found = pm.queryIntentActivities(probe, 0);
         List<SpiderCarousel.Item> apps = new ArrayList<>();
         Set<String> seen = new HashSet<>();
-        for (ResolveInfo ri : found) {
+        Set<String> tvPackages = new HashSet<>();
+        phoneApps.clear();
+        Intent tv = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
+        for (ResolveInfo ri : pm.queryIntentActivities(tv, 0)) {
+            if (ri.activityInfo == null) continue;
+            ComponentName cn = new ComponentName(ri.activityInfo.packageName, ri.activityInfo.name);
+            if (!seen.add(cn.flattenToShortString())) continue;
+            if (addApp(pm, ri, cn, apps)) tvPackages.add(cn.getPackageName());
+        }
+        // Phone apps (LAUNCHER only, no TV entry): one tile per package; a package with a TV entry keeps that one.
+        Intent phone = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+        for (ResolveInfo ri : pm.queryIntentActivities(phone, 0)) {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
-            if (pkg.equals(act.getPackageName()) || hidden.contains(pkg)) continue;
-            ComponentName cn = new ComponentName(pkg, ri.activityInfo.name);
-            if (!seen.add(cn.flattenToShortString())) continue;
-            String label = "org.smarttube.stable".equals(pkg) ? "YouTube"
-                    : SpiderLabels.tileName(String.valueOf(ri.loadLabel(pm)), pkg);
-            int art = designArt(pkg);
-            Drawable icon = art != 0 ? act.getDrawable(art) : ri.loadIcon(pm);
-            apps.add(new SpiderCarousel.Item(SpiderCarousel.Item.APP, label, cn, icon,
-                    art != 0 ? designBox(art) : null, art == R.drawable.spider_icon_spotify));
+            if (tvPackages.contains(pkg) || phoneApps.contains(pkg)) continue;
+            if (addApp(pm, ri, new ComponentName(pkg, ri.activityInfo.name), apps)) phoneApps.add(pkg);
         }
         List<String> fav = cfg.dockPackages;
         Collections.sort(apps, (a, b) -> {
@@ -185,6 +189,19 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
         apps.add(new SpiderCarousel.Item(SpiderCarousel.Item.SETTINGS, act.getString(R.string.spider_settings_label), null, null,
                 null, false));
         return apps;
+    }
+
+    /** Adds the tile for one launchable activity; false if this launcher or a hidden package. */
+    private boolean addApp(PackageManager pm, ResolveInfo ri, ComponentName cn, List<SpiderCarousel.Item> apps) {
+        String pkg = cn.getPackageName();
+        if (pkg.equals(act.getPackageName()) || hidden.contains(pkg)) return false;
+        String label = "org.smarttube.stable".equals(pkg) ? "YouTube"
+                : SpiderLabels.tileName(String.valueOf(ri.loadLabel(pm)), pkg);
+        int art = designArt(pkg);
+        Drawable icon = art != 0 ? act.getDrawable(art) : ri.loadIcon(pm);
+        apps.add(new SpiderCarousel.Item(SpiderCarousel.Item.APP, label, cn, icon,
+                art != 0 ? designBox(art) : null, art == R.drawable.spider_icon_spotify));
+        return true;
     }
 
     /** Apps the design drew by hand get that art; everything else shows its own icon. */
@@ -242,15 +259,23 @@ final class SpiderHomeController implements SpiderCarousel.Listener {
             actions.launcherSettings();
             return;
         }
-        Intent i = new Intent(Intent.ACTION_MAIN)
-                .addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER)
-                .setComponent(item.component)
+        Intent i = launchIntent(item)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         try {
             act.startActivity(i);
         } catch (Exception ex) {
             Toast.makeText(act, act.getString(R.string.spider_cant_open, item.label), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /** TV tiles open their own leanback activity; phone apps open the way the phone launcher would. */
+    private Intent launchIntent(SpiderCarousel.Item item) {
+        if (phoneApps.contains(item.pkg)) {
+            Intent i = act.getPackageManager().getLaunchIntentForPackage(item.pkg);
+            if (i != null) return i;
+            return new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setComponent(item.component);
+        }
+        return new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER).setComponent(item.component);
     }
 
     @Override
