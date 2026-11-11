@@ -638,7 +638,7 @@ public class RecentAppsActivity extends Activity {
         try {
             startActivity(i);
         } catch (ActivityNotFoundException | SecurityException e) {
-            Toast.makeText(this, "Can't open that here", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.spider_unavailable, Toast.LENGTH_SHORT).show();
         }
     }
 
