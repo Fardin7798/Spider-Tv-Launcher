@@ -128,9 +128,15 @@ adb shell cmd package set-home-activity --user 0 com.spidertv.launcher/.SpiderHo
 
 # 5. Grant usage access for Recent Apps Switcher
 adb shell appops set com.spidertv.launcher GET_USAGE_STATS allow
+
+# 6. (Optional) Let the network pill show your Wi-Fi name
+adb shell pm grant com.spidertv.launcher android.permission.ACCESS_FINE_LOCATION
 ```
 
 Then on the TV, open **Settings ➔ Accessibility** and turn on **Home button** (double-press Home for Recents) and **Spider TV Launcher** (remote shortcut keys). Pick **Clock** under Screensaver if you want the flip-clock screensaver.
+
+#### 📶 Wi-Fi name in the network pill
+Android only reveals the Wi-Fi network name (SSID) to apps that hold location permission **and** while location is switched on for the TV. Without both, the pill simply shows **Wi-Fi**. Run step 6 above once, then make sure location is on in the TV's Settings; the launcher never asks for location in a dialog.
 
 ---
 

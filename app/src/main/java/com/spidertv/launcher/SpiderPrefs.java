@@ -42,13 +42,8 @@ final class SpiderPrefs {
     final boolean motionGentle;
     final String vpnPackage;
     final int[] extraSettingsKeys;
-    final boolean settingsKeyOpensPanel;
-    /** Whether a config.json file was found and accepted. */
-    final boolean fromJsonOverride;
 
-    private SpiderPrefs(Knobs k, boolean fromJsonOverride) {
-        this.fromJsonOverride = fromJsonOverride;
-        settingsKeyOpensPanel = k.settingsPanel;
+    private SpiderPrefs(Knobs k) {
         extraSettingsKeys = k.settingsKeys;
         vpnPackage = k.vpnPkg;
         motionGentle = k.gentle;
@@ -71,18 +66,15 @@ final class SpiderPrefs {
         Knobs knobs = Knobs.defaults(context.getResources());
         File where = overrideFolder(context);
         JSONObject json = readOverride(where != null ? new File(where, OVERRIDE_FILE) : null);
-        if (json != null) {
-            knobs.override(json);
-            return new SpiderPrefs(knobs, true);
-        }
-        return new SpiderPrefs(knobs, false);
+        if (json != null) knobs.override(json);
+        return new SpiderPrefs(knobs);
     }
 
     /** Scratch holder used while resource defaults and the JSON override are merged. */
     private static final class Knobs {
         List<String> dock, hidden;
         String tunerPkg, tunerAction, panelComponent, panelAction, sourceAction, vpnPkg;
-        boolean motion, gentle, settingsPanel;
+        boolean motion, gentle;
         int[] settingsKeys;
 
         static Knobs defaults(android.content.res.Resources res) {
@@ -98,7 +90,6 @@ final class SpiderPrefs {
             k.gentle = res.getBoolean(R.bool.spider_motion_reduced);
             k.vpnPkg = res.getString(R.string.spider_vpn_package).trim();
             k.settingsKeys = res.getIntArray(R.array.spider_settings_keycodes);
-            k.settingsPanel = res.getBoolean(R.bool.spider_settings_as_panel);
             return k;
         }
 
@@ -115,7 +106,6 @@ final class SpiderPrefs {
             gentle = asBool(json.opt("reduced_motion"), gentle);
             vpnPkg = asString(json.opt("vpn_app"), vpnPkg);
             settingsKeys = asKeyCodes(json.opt("settings_key_keycodes"), settingsKeys);
-            settingsPanel = asBool(json.opt("settings_key_panel"), settingsPanel);
         }
     }
 

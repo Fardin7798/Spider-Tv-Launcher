@@ -35,7 +35,8 @@ import android.widget.Toast;
  *
  * {@link SpiderHomeController} draws what is on screen (carousel, greeting, header pills). This activity
  * runs the lifecycle around it and everything a pill opens: the source picker, the network and Bluetooth
- * shortcuts, system Settings, and the recents screen (Mi / menu keys, or a quick second Home press).
+ * shortcuts, system Settings (a long press opens the default-home chooser), and the recents screen
+ * (Mi / menu keys, or a quick second Home press).
  */
 public class SpiderHomeActivity extends android.app.Activity {
 
@@ -55,7 +56,7 @@ public class SpiderHomeActivity extends android.app.Activity {
     /** Source-row state meaning "show no status". */
     private static final int NO_STATE = -1;
 
-    /** Uptime of the previous Home press (or resume); static so every instance sees it. */
+    /** Uptime of the previous Home press made while Home was in front; static so every instance sees it. */
     private static long previousHomeAt = 0;
 
     private float dp;
@@ -72,6 +73,10 @@ public class SpiderHomeActivity extends android.app.Activity {
     private SpiderHomeController home;
     private PopupWindow shownSheet;
     private boolean freshOnResume = true;
+    /** The app row needs rebuilding on the next onResume: first start, or packages changed while stopped. */
+    private boolean appsDirty = true;
+    /** PackageManager change cursor (getChangedPackages); catches installs and removals made while stopped. */
+    private int packageSeq;
 
     private final android.os.Handler ui = new android.os.Handler(android.os.Looper.getMainLooper());
 
@@ -100,6 +105,7 @@ public class SpiderHomeActivity extends android.app.Activity {
                     && change.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                 return;
             }
+            packagesChanged();
             if (home != null) home.reload();
         }
     };
@@ -151,6 +157,7 @@ public class SpiderHomeActivity extends android.app.Activity {
             appChanges.addAction(a);
         }
         appChanges.addDataScheme("package");
+        packagesChanged();
 
         final ConnectivityManager net = getSystemService(ConnectivityManager.class);
         final TvInputManager sources = tvInputs();
@@ -192,7 +199,7 @@ public class SpiderHomeActivity extends android.app.Activity {
 
         @Override
         public void settingsMenu() {
-            launchSettings();
+            start(new Intent(SpiderHomeActivity.this, SpiderSettingsActivity.class));
         }
 
         @Override
@@ -207,13 +214,24 @@ public class SpiderHomeActivity extends android.app.Activity {
         if (incoming == null || !incoming.hasCategory(Intent.CATEGORY_HOME)) return;
         final long at = android.os.SystemClock.uptimeMillis();
         final long gap = at - previousHomeAt;
-        Log.e(TAG, "onNewIntent: delta=" + gap);
-        if (gap < HOME_TWICE_MS) {
+        Log.d(TAG, "onNewIntent: delta=" + gap);
+        // Still stopped (onNewIntent runs before onResume): this press brought Home back from another
+        // app, so it is not the first of a double press. Only two presses while on Home open recents.
+        final boolean fromElsewhere = freshOnResume;
+        if (!fromElsewhere && gap < HOME_TWICE_MS) {
             previousHomeAt = 0;
             if (launchRecents()) return;
         }
-        previousHomeAt = at;
+        previousHomeAt = fromElsewhere ? 0 : at;
         if (home != null) home.home();
+    }
+
+    /** Moves the package-change cursor to now; true if a package was added, removed or changed since the last call. */
+    private boolean packagesChanged() {
+        final android.content.pm.ChangedPackages changed = getPackageManager().getChangedPackages(packageSeq);
+        if (changed == null) return false;
+        packageSeq = changed.getSequenceNumber();
+        return true;
     }
 
     /** Opens the recents screen; false if starting it threw. */
@@ -234,15 +252,15 @@ public class SpiderHomeActivity extends android.app.Activity {
         } else {
             registerReceiver(appWatcher, appChanges);
         }
+        if (packagesChanged()) appsDirty = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Returning to Home counts as a first press: one more inside the window opens recents.
-        previousHomeAt = android.os.SystemClock.uptimeMillis();
         if (home != null) {
-            home.onResume(freshOnResume);
+            home.onResume(appsDirty);
+            appsDirty = false;
             freshOnResume = false;
         }
         paintNetworkPill();
@@ -288,15 +306,13 @@ public class SpiderHomeActivity extends android.app.Activity {
         return code == KeyEvent.KEYCODE_BUTTON_2
                 || code == KeyEvent.KEYCODE_APP_SWITCH
                 || code == KeyEvent.KEYCODE_MENU
-                || scan == 150
-                || scan == 580;
+                || SpiderHomeKeyService.isMiScan(scan);
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent key) {
         final int code = key.getKeyCode();
         final int scan = key.getScanCode();
-        Log.e(TAG, "dispatch: action=" + key.getAction() + " key=" + code + " scan=" + scan);
         if (!opensRecents(code, scan)) return super.dispatchKeyEvent(key);
         if (key.getAction() != KeyEvent.ACTION_UP) return true;
         try {

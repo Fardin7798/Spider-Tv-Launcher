@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Spider Home flip clock: two dark cards (hour, minutes) with tall condensed digits split by a hinge line,
@@ -108,8 +109,8 @@ public class FlipClockView extends View {
         boolean h24 = DateFormat.is24HourFormat(getContext());
         int h = c.get(h24 ? Calendar.HOUR_OF_DAY : Calendar.HOUR);
         if (!h24 && h == 0) h = 12;
-        String nh = h24 ? String.format("%02d", h) : String.valueOf(h);
-        String nm = String.format("%02d", c.get(Calendar.MINUTE));
+        String nh = h24 ? String.format(Locale.US, "%02d", h) : String.valueOf(h);
+        String nm = String.format(Locale.US, "%02d", c.get(Calendar.MINUTE));
         ampm = h24 ? "" : (c.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM");
         boolean ch = !nh.equals(hour), cm = !nm.equals(minute);
         oldHour = hour;

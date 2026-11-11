@@ -4,6 +4,7 @@
     <string name="spider_dream_title">Clock</string>
     <string name="spider_homekey_title">Home button</string>
     <string name="spider_homekey_summary">Makes the remote\'s Home button open this launcher.</string>
+    <string name="spider_inputkey_title">Input button</string>
     <string name="spider_inputkey_summary">Opens the input switcher when the remote\'s Input button is pressed.</string>
 
     <!-- ===== Top-right pills ===== -->
@@ -22,6 +23,17 @@
     <string name="spider_source_connected">Connected</string>
     <string name="spider_source_disconnected">No device</string>
     <string name="spider_no_sources">No inputs found</string>
+
+    <!-- ===== Recents: these only hide a card here, they do not stop the app ===== -->
+    <string name="spider_recents_remove">Remove</string>
+    <string name="spider_recents_clear">Clear list</string>
+    <!-- counted since local midnight -->
+    <plurals name="spider_recents_count">
+        <item quantity="one">%d app used today</item>
+        <item quantity="other">%d apps used today</item>
+    </plurals>
+    <string name="spider_recents_subtitle">%1$s  ·  %2$.1f GB memory free</string>
+    <string name="spider_recents_used_today">Used %1$s today</string>
 
     <!-- ===== Greeting, by hour ===== -->
     <string name="spider_greet_morning">Good morning</string>

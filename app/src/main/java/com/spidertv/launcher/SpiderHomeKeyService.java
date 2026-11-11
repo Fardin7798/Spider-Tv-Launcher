@@ -11,7 +11,7 @@ import android.view.KeyEvent;
  * redirects only these:
  * <ul>
  *   <li>Settings (KEYCODE_SETTINGS, or any code listed in spider_config.xml / config.json) to system Settings,</li>
- *   <li>the Mi button (KEYCODE_BUTTON_2, scancode 150) to the recent-apps screen,</li>
+ *   <li>the Mi button (KEYCODE_BUTTON_2, scancode 150 or 580) to the recent-apps screen,</li>
  *   <li>KEYCODE_ALL_APPS to this launcher.</li>
  * </ul>
  * Everything else passes through. Enable it over adb with
@@ -27,22 +27,23 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
     static final int GO_RECENTS = 3;
     static final int GO_HOME = 4;
 
-    /** Scancode sent by the Xiaomi Mi button. */
-    private static final int XIAOMI_MI_SCAN = 150;
+    /** Scancodes sent by the Xiaomi Mi button, depending on the remote; shared with Home and Recents. */
+    static final int XIAOMI_MI_SCAN = 150;
+    static final int XIAOMI_MI_SCAN_ALT = 580;
+
+    static boolean isMiScan(int scan) {
+        return scan == XIAOMI_MI_SCAN || scan == XIAOMI_MI_SCAN_ALT;
+    }
 
     private int[] settingsScans = new int[0];
     private int[] settingsCodes = new int[0];
-    /** Loaded together with the other settings-key knobs; not acted on yet. */
-    private boolean settingsOpensPanel;
 
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
         settingsScans = getResources().getIntArray(R.array.spider_settings_scancodes);
         // config.json can replace these; theme.sh restarts the service after editing it.
-        SpiderPrefs prefs = SpiderPrefs.read(this);
-        settingsCodes = prefs.extraSettingsKeys;
-        settingsOpensPanel = prefs.settingsKeyOpensPanel;
+        settingsCodes = SpiderPrefs.read(this).extraSettingsKeys;
     }
 
     private static boolean contains(int[] haystack, int needle) {
@@ -60,7 +61,7 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
         final int action;
         if (code == KeyEvent.KEYCODE_SETTINGS || contains(scans, scan) || contains(codes, code)) {
             action = GO_SETTINGS;
-        } else if (code == KeyEvent.KEYCODE_BUTTON_2 || scan == XIAOMI_MI_SCAN) {
+        } else if (code == KeyEvent.KEYCODE_BUTTON_2 || isMiScan(scan)) {
             action = GO_RECENTS;
         } else if (code == KeyEvent.KEYCODE_ALL_APPS) {
             action = GO_HOME;
@@ -72,7 +73,6 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
 
     @Override
     protected boolean onKeyEvent(KeyEvent key) {
-        android.util.Log.e("HomeKeyTest", "key: " + key.getKeyCode() + " action: " + key.getAction());
         final int result = decide(key.getKeyCode(), key.getScanCode(), key.getAction() == KeyEvent.ACTION_UP,
                 key.isCanceled(), settingsScans, settingsCodes);
         if (result == PASS) return false;
@@ -87,7 +87,14 @@ public class SpiderHomeKeyService extends android.accessibilityservice.Accessibi
                     .setPackage(getPackageName())
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         }
-        if (next != null) startActivity(next);
+        if (next != null) {
+            try {
+                startActivity(next);
+            } catch (RuntimeException problem) {
+                // Target missing on this TV (e.g. no Settings activity): never crash the service.
+                android.util.Log.w("SpiderHomeKeyService", "could not open " + next, problem);
+            }
+        }
         return true;
     }
 

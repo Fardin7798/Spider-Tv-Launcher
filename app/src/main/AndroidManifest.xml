@@ -10,12 +10,11 @@
     <!-- network pill: link type and Wi-Fi state -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <!-- SSID lookup needs location on API 29+. Granted over adb by the install script and never
-         requested in a dialog, hence the lint suppression. -->
+    <!-- SSID lookup needs location on API 29+. Granted over adb (README, manual setup step 6) and
+         never requested in a dialog, hence the lint suppression. -->
     <uses-permission tools:ignore="CoarseFineLocation" android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <!-- recents screen: usage stats (adb-granted) and stopping background apps -->
+    <!-- recents screen: usage stats (adb-granted) -->
     <uses-permission tools:ignore="ProtectedPermissions" android:name="android.permission.PACKAGE_USAGE_STATS"/>
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
 
     <!-- ===== Package visibility (API 30+) ===== -->
     <queries>
@@ -23,6 +22,11 @@
         <intent>
             <action android:name="android.intent.action.MAIN"/>
             <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+        </intent>
+        <!-- phone apps with no TV entry, shown on the row too -->
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
         </intent>
         <!-- apps that publish a dock card -->
         <intent>
@@ -59,7 +63,8 @@
             </intent-filter>
         </activity>
 
-        <!-- Invisible trampoline that opens the system "default home" chooser. -->
+        <!-- Invisible trampoline that opens the system "default home" chooser; started by a long press
+             on the Settings pill or tile. -->
         <activity android:name=".SpiderSettingsActivity" android:exported="false"
             android:theme="@android:style/Theme.NoDisplay"
             android:taskAffinity="" android:excludeFromRecents="true"/>
@@ -74,13 +79,6 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
-        <!-- Xiaomi global-button broadcasts. -->
-        <receiver android:name=".MiKeyReceiver" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.GLOBAL_BUTTON"/>
-            </intent-filter>
-        </receiver>
 
         <!-- Accessibility key filter that maps the remote's apps key to this launcher (off until
              the user or tools/apply.sh enables it). -->
@@ -102,7 +100,7 @@
         </service>
 
         <!-- Accessibility key filter for the remote's Input key: opens the source picker. -->
-        <service android:name=".SpiderInputKeyService" android:label="@string/spider_app_title"
+        <service android:name=".SpiderInputKeyService" android:label="@string/spider_inputkey_title"
             android:exported="false" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService"/>
