@@ -10,8 +10,8 @@
     <!-- network pill: link type and Wi-Fi state -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <!-- SSID lookup needs location on API 29+. Granted over adb by the install script and never
-         requested in a dialog, hence the lint suppression. -->
+    <!-- SSID lookup needs location on API 29+. Granted over adb (README, manual setup step 6) and
+         never requested in a dialog, hence the lint suppression. -->
     <uses-permission tools:ignore="CoarseFineLocation" android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- recents screen: usage stats (adb-granted) -->
     <uses-permission tools:ignore="ProtectedPermissions" android:name="android.permission.PACKAGE_USAGE_STATS"/>
