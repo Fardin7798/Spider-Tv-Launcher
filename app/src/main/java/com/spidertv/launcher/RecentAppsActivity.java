@@ -241,6 +241,11 @@ public class RecentAppsActivity extends Activity {
     private boolean hasUsageAccess() {
         AppOpsManager ops = (AppOpsManager) getSystemService(APP_OPS_SERVICE);
         int mode = ops.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), getPackageName());
+        if (mode == AppOpsManager.MODE_DEFAULT) {
+            // MODE_DEFAULT means "decided by the permission", so fall back to the permission check
+            return checkCallingOrSelfPermission(android.Manifest.permission.PACKAGE_USAGE_STATS)
+                    == PackageManager.PERMISSION_GRANTED;
+        }
         return mode == AppOpsManager.MODE_ALLOWED;
     }
 
