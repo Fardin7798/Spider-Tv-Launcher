@@ -73,6 +73,10 @@ public class SpiderHomeActivity extends android.app.Activity {
     private SpiderHomeController home;
     private PopupWindow shownSheet;
     private boolean freshOnResume = true;
+    /** The app row needs rebuilding on the next onResume: first start, or packages changed while stopped. */
+    private boolean appsDirty = true;
+    /** PackageManager change cursor (getChangedPackages); catches installs and removals made while stopped. */
+    private int packageSeq;
 
     private final android.os.Handler ui = new android.os.Handler(android.os.Looper.getMainLooper());
 
@@ -101,6 +105,7 @@ public class SpiderHomeActivity extends android.app.Activity {
                     && change.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                 return;
             }
+            packagesChanged();
             if (home != null) home.reload();
         }
     };
@@ -152,6 +157,7 @@ public class SpiderHomeActivity extends android.app.Activity {
             appChanges.addAction(a);
         }
         appChanges.addDataScheme("package");
+        packagesChanged();
 
         final ConnectivityManager net = getSystemService(ConnectivityManager.class);
         final TvInputManager sources = tvInputs();
@@ -220,6 +226,14 @@ public class SpiderHomeActivity extends android.app.Activity {
         if (home != null) home.home();
     }
 
+    /** Moves the package-change cursor to now; true if a package was added, removed or changed since the last call. */
+    private boolean packagesChanged() {
+        final android.content.pm.ChangedPackages changed = getPackageManager().getChangedPackages(packageSeq);
+        if (changed == null) return false;
+        packageSeq = changed.getSequenceNumber();
+        return true;
+    }
+
     /** Opens the recents screen; false if starting it threw. */
     private boolean launchRecents() {
         try {
@@ -238,13 +252,15 @@ public class SpiderHomeActivity extends android.app.Activity {
         } else {
             registerReceiver(appWatcher, appChanges);
         }
+        if (packagesChanged()) appsDirty = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (home != null) {
-            home.onResume(freshOnResume);
+            home.onResume(appsDirty);
+            appsDirty = false;
             freshOnResume = false;
         }
         paintNetworkPill();
