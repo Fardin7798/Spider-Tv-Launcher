@@ -294,8 +294,10 @@ final class SpiderCarousel extends View {
                 queued = Math.min(1, queued + 1);
                 if (held) anim.end();
             } else {
-                anim.end();
+                // drop the queued step first: end() runs onAnimationEnd, which would otherwise start it
+                // and leave two animators running once we start the reversed step below
                 queued = 0;
+                anim.end();
                 start(d, true);
             }
             return;
