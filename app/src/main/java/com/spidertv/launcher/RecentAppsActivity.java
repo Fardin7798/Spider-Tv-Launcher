@@ -327,6 +327,7 @@ public class RecentAppsActivity extends Activity {
         private final float size, margin;   // icon box as a share of height; clear side margin of the art
         private final Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private float shaderH = -1f;   // height the cached background gradient was built for
 
         DesignBanner(Drawable icon, String label, Typeface font, float size, float margin) {
             this.icon = icon;
@@ -342,7 +343,10 @@ public class RecentAppsActivity extends Activity {
             float w = b.width(), h = b.height();
             c.save();
             c.translate(b.left, b.top);
-            bg.setShader(new LinearGradient(0, 0, 0, h, 0xFFFFFFFF, 0xFFEDEFF4, Shader.TileMode.CLAMP));
+            if (h != shaderH) {
+                bg.setShader(new LinearGradient(0, 0, 0, h, 0xFFFFFFFF, 0xFFEDEFF4, Shader.TileMode.CLAMP));
+                shaderH = h;
+            }
             c.drawRect(0, 0, w, h, bg);
             float is = h * size;
             float cy = h * 0.40f;                      // optical centre, above the usage line

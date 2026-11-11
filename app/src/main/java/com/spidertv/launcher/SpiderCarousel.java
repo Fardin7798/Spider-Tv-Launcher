@@ -121,6 +121,10 @@ final class SpiderCarousel extends View {
     private final LinearGradient gearFill = new LinearGradient(0, -1f, 0, 1f, 0xFFD9DBE3, 0xFF9A9DAA, Shader.TileMode.CLAMP);
     private final android.graphics.CornerPathEffect gearCorners = new android.graphics.CornerPathEffect(2f);
     private final T st = new T(), gh = new T();
+    /** Ghost-trail alphas for the flung and the pulled tile, and the per-frame scratch reused in drawStep(). */
+    private static final float[] GHOST_FLUNG = {0.30f, 0.18f, 0.10f}, GHOST_PULLED = {0.22f, 0.12f};
+    private final int[] stepOrder = new int[2];
+    private final float[] handPt = new float[2];
 
     /** One tile's pose for a frame, concept coords except where noted. */
     private static final class T {
@@ -497,11 +501,13 @@ final class SpiderCarousel extends View {
             pose(st, r, e, v);
             drawTile(c, it, st);
         }
-        for (int r : new int[]{0, dir}) {
+        stepOrder[0] = 0;
+        stepOrder[1] = dir;
+        for (int r : stepOrder) {
             Item it = itemAt(fromFocus + r);
             if (it == null) continue;
             if (!reducedMotion && pullWave > 0.01f) {
-                float[] alphas = r == 0 ? new float[]{0.30f, 0.18f, 0.10f} : new float[]{0.22f, 0.12f};
+                float[] alphas = r == 0 ? GHOST_FLUNG : GHOST_PULLED;
                 for (int k = alphas.length; k >= 1; k--) {
                     float ek = Math.max(0f, e - 0.09f * k);
                     pose(gh, r, ek, 0f);
@@ -571,12 +577,14 @@ final class SpiderCarousel extends View {
         return t.cy - (t.sz / 2f) * (float) Math.cos(Math.toRadians(t.rot));
     }
 
-    /** A point on a hero pose (crop px) in concept coords. */
+    /** A point on a hero pose (crop px) in concept coords; returns a reused array, read it before the next call. */
     private float[] hand(float ax, float ay, Bitmap pose, boolean mirror) {
         float left = HERO_X - 140f * HERO_K;
         float x = left + ax * HERO_K, y = HERO_TOP + ay * HERO_K;
         if (mirror) x = 2 * HERO_X - x;
-        return new float[]{x, y};
+        handPt[0] = x;
+        handPt[1] = y;
+        return handPt;
     }
 
     private void drawHero(Canvas c, Bitmap pose, boolean mirror) {
