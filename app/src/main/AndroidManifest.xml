@@ -75,13 +75,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Xiaomi global-button broadcasts. -->
-        <receiver android:name=".MiKeyReceiver" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.GLOBAL_BUTTON"/>
-            </intent-filter>
-        </receiver>
-
         <!-- Accessibility key filter that maps the remote's apps key to this launcher (off until
              the user or tools/apply.sh enables it). -->
         <service android:name=".SpiderHomeKeyService" android:label="@string/spider_homekey_title"
