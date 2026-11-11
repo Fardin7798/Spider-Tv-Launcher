@@ -102,7 +102,7 @@
         </service>
 
         <!-- Accessibility key filter for the remote's Input key: opens the source picker. -->
-        <service android:name=".SpiderInputKeyService" android:label="@string/spider_app_title"
+        <service android:name=".SpiderInputKeyService" android:label="@string/spider_inputkey_title"
             android:exported="false" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService"/>

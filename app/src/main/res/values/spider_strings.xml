@@ -4,6 +4,7 @@
     <string name="spider_dream_title">Clock</string>
     <string name="spider_homekey_title">Home button</string>
     <string name="spider_homekey_summary">Makes the remote\'s Home button open this launcher.</string>
+    <string name="spider_inputkey_title">Input button</string>
     <string name="spider_inputkey_summary">Opens the input switcher when the remote\'s Input button is pressed.</string>
 
     <!-- ===== Top-right pills ===== -->
