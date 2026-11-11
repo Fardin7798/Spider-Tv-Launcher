@@ -19,6 +19,8 @@ final class SpiderUserSettings {
     /** Comma-separated package lists written by Manage apps. */
     static final String HIDDEN_APPS = "hidden_apps";
     static final String APP_ORDER = "app_order";
+    /** Custom Home wallpaper token (SpiderWallpaperRules); "" or missing for the default backdrop. */
+    static final String WALLPAPER = "wallpaper";
     private static final String REVISION = "revision";
 
     /** Clock format values: follow the TV, always 12-hour, always 24-hour. */

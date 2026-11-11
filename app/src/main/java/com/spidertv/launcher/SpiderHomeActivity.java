@@ -71,6 +71,8 @@ public class SpiderHomeActivity extends android.app.Activity {
     private View sourcesPill;
     private TextView networkPill;
     private SpiderHomeController home;
+    /** Custom wallpaper behind everything; hidden when the default backdrop is in use. */
+    private SpiderWallpaperView wallpaper;
     private PopupWindow shownSheet;
     private boolean freshOnResume = true;
     /** The app row needs rebuilding on the next onResume: first start, or packages changed while stopped. */
@@ -155,6 +157,10 @@ public class SpiderHomeActivity extends android.app.Activity {
         sourcesPill = findViewById(R.id.spiderSourcesPill);
         networkPill = findViewById(R.id.spiderNetworkPill);
         home = new SpiderHomeController(this, prefs, new PillHandlers());
+        wallpaper = new SpiderWallpaperView(this);
+        screen.addView(wallpaper, 0, new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        applyWallpaper();
 
         for (String a : new String[]{Intent.ACTION_PACKAGE_ADDED, Intent.ACTION_PACKAGE_REMOVED,
                 Intent.ACTION_PACKAGE_CHANGED}) {
@@ -253,8 +259,16 @@ public class SpiderHomeActivity extends android.app.Activity {
         }
         prefs = fresh;
         if (home != null) home.update(fresh);
+        applyWallpaper();
         appsDirty = false;
         return false;
+    }
+
+    /** A video wallpaper plays only with motion on and not reduced; otherwise its first frame shows. */
+    private void applyWallpaper() {
+        if (wallpaper != null) {
+            wallpaper.apply(SpiderWallpaperStore.current(this), prefs.motionOn && !prefs.motionGentle);
+        }
     }
 
     /** Opens the recents screen; false if starting it threw. */
@@ -287,6 +301,7 @@ public class SpiderHomeActivity extends android.app.Activity {
             appsDirty = false;
             freshOnResume = false;
         }
+        if (wallpaper != null) wallpaper.resume();
         paintNetworkPill();
         refreshSourcesPill();
         ui.postDelayed(everyMinute, TICK_MS);
@@ -297,18 +312,21 @@ public class SpiderHomeActivity extends android.app.Activity {
         super.onPause();
         ui.removeCallbacks(everyMinute);
         if (shownSheet != null) shownSheet.dismiss();
+        if (wallpaper != null) wallpaper.pause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unregisterReceiver(appWatcher);
+        if (wallpaper != null) wallpaper.stop();
         freshOnResume = true;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (wallpaper != null) wallpaper.release();
         final ConnectivityManager net = getSystemService(ConnectivityManager.class);
         final TvInputManager sources = tvInputs();
         if (sources != null) sources.unregisterCallback(sourceWatcher);
